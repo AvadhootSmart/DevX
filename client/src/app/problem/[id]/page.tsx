@@ -17,10 +17,15 @@ import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { IProblem } from "../../../../types/problem.types";
 import { cn } from "@/lib/utils";
+import useUser from "../../../../store/user.store";
+import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 const Page = () => {
   const { id } = useParams();
   const { theme } = useTheme();
+
+  const { token } = useUser();
 
   const [mode, setMode] = useState<"normal" | "vim">("normal");
   const [problem, setProblem] = useState<IProblem | null>(null);
@@ -31,7 +36,6 @@ const Page = () => {
   const vimRef = useRef<VimEditorHandle>(null);
   const boilerplateRef = useRef<string>("");
 
-  // 🧩 Editor mount handler
   const handleUserEditorMount = (editor: any) => {
     editorRef.current = editor;
 
@@ -63,6 +67,10 @@ const Page = () => {
 
   // 🧩 Submit handler
   const handleSubmit = async () => {
+    if (!token) {
+      toast.message("You must be logged in to submit a solution");
+      return;
+    }
     setLoading(true);
 
     const submissionCode =
@@ -93,14 +101,12 @@ const Page = () => {
     }
   };
 
-  // 🧭 Load problem on route param change
   useEffect(() => {
     if (id) {
       fetchProblemData(id as string);
     }
   }, [id]);
 
-  // 🧩 Once the editor(s) and problem are ready, set boilerplate in both editors
   useEffect(() => {
     const boilerplate = boilerplateRef.current;
     if (!boilerplate) return;
@@ -152,8 +158,20 @@ const Page = () => {
               </SelectContent>
             </Select>
 
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? "Running..." : "Submit"}
+            <Button
+              onClick={handleSubmit}
+              disabled={loading || !token}
+              className="cursor-pointer"
+            >
+              {!token ? (
+                "Login to submit"
+              ) : loading ? (
+                "Submitting..."
+              ) : (
+                <span className="flex items-center">
+                  Submit <Check className="size-4 ml-2" />
+                </span>
+              )}
             </Button>
           </div>
 

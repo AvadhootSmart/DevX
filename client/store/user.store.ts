@@ -1,24 +1,31 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-export interface IUser = {
-};
-
-interface User {
-  user: IUser | null;
-  setUser: (user: IUser | null) => void;
+export interface IUser {
+  username: string;
+  email: string;
 }
 
-export const useUserStore = create<User>((set) => ({
-  user: null,
-  setUser: (user: PUBLIC_USER | null) => set({ user: user }),
-  updateUserFromServer: (user: USER | null) => {
-    if (!user) {
-      set({ user: null });
-      return;
-    }
-    // Strip sensitive data before storing
-    // eslint-disable-next-line
-    const { isTrialUser, ...publicUser } = user;
-    set({ user: publicUser });
-  },
-}));
+type UserStore = {
+  user: IUser | null;
+  token: string | null;
+  setToken: (token: string | null) => void;
+  setUser: (user: IUser | null) => void;
+};
+
+const useUser = create<UserStore>()(
+  persist(
+    (set) => ({
+      user: null,
+      token: null,
+      setToken: (token) => set({ token }),
+      setUser: (user) => set({ user }),
+    }),
+    {
+      name: "devx-user",
+      partialize: (state) => ({ token: state.token }),
+    },
+  ),
+);
+
+export default useUser;

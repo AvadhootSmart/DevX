@@ -83,7 +83,7 @@ func (h *DbHandler) RegisterUser(c *fiber.Ctx) error{
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create user"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User created successfully", "user": fiber.Map{
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "User created successfully", "user": fiber.Map{
 		"id":    newUser.ID,
 		"email": newUser.Email,
 		"username": newUser.Username,

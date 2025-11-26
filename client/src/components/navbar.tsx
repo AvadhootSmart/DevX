@@ -1,4 +1,4 @@
-// import Logo from "@/components/navbar-components/logo";
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -12,16 +12,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ThemeToggle } from "./themeToggle";
-import { Terminal } from "lucide-react";
+import { LogOutIcon, Terminal, User } from "lucide-react";
+import { AuthPopup } from "./authPopup";
+import useUser from "../../store/user.store";
+import Link from "next/link";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
-  { href: "/", label: "Home" },
   { href: "/problems", label: "Problems" },
   { href: "/playground", label: "Playground" },
 ];
 
 export function Navbar() {
+  const { token, setToken } = useUser();
+
+  const handleLogout = () => {
+    setToken(null);
+  };
+
   return (
     <header className="border-b px-4 md:px-6">
       <div className="flex h-16 items-center justify-between gap-4">
@@ -113,12 +121,31 @@ export function Navbar() {
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2">
-          {/* <Button asChild variant="ghost" size="sm" className="text-sm"> */}
-          {/*   <a href="#">Sign In</a> */}
-          {/* </Button> */}
-          <Button asChild size="sm" className="text-sm">
-            <a href="#">Get Started</a>
-          </Button>
+          {!token ? (
+            <AuthPopup>
+              <Button asChild size="sm" className="text-sm">
+                <a href="#">Get Started</a>
+              </Button>
+            </AuthPopup>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="text-sm">
+                <Link href={"/profile"} className="flex items-center gap-2">
+                  <User size={20} />
+                  Profile
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-sm"
+                title="Logout"
+                onClick={handleLogout}
+              >
+                <LogOutIcon />
+              </Button>
+            </div>
+          )}
           <ThemeToggle />
         </div>
       </div>
