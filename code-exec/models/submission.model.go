@@ -1,6 +1,14 @@
 package models
 
+import "gorm.io/gorm"
+
 type Submission struct {
-	UserID uint `gorm:"foreignKey:user_id"`
-	User User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	gorm.Model
+	UserID uint 
+	User User `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+
+	ProblemID uint 
+	Problem Problem `gorm:"foreignKey:ProblemID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+
+	Code string 
 }

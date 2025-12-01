@@ -84,7 +84,7 @@ const Page = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: submissionCode,
-          problem_name: problem?.id,
+          problem_path: problem?.path,
         }),
       });
 

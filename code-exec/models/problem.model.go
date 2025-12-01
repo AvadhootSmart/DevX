@@ -1,16 +1,20 @@
 package models
 
-import "gorm.io/datatypes"
+import (
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
+)
 
 type Problem struct {
-	// ID          uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	ID 			string   `gorm:"primaryKey" json:"id"`
-	Name        string   `json:"problem_name"`
+	gorm.Model
+	Path        string   `gorm:"uniqueIndex" json:"path"`
+	Name        string   `gorm:"uniqueIndex" json:"problem_name"`
 	Description string 	 `json:"description"`
 	Difficulty  string	 `json:"difficulty"`
 	Boilerplate string	 `json:"boilerplate"`
-	// Tests       []Test   `gorm:"foreignKey:ProblemID"`
 	Topics      datatypes.JSON `gorm:"type:json" json:"topics"`
+	// Submissions []Submission `gorm:"foreignKey:ProblemID"`
+	// Tests       []Test   `gorm:"foreignKey:ProblemID"`
 } 
 
 type Test struct {

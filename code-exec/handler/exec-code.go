@@ -22,7 +22,7 @@ type JestResult struct {
 }
 
 
-func ExecCode(code string, problemName string, c *fiber.Ctx) {
+func ExecCode(code string, problemName string,isFrontendCode bool,  c *fiber.Ctx) {
 	ctx := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -40,7 +40,8 @@ func ExecCode(code string, problemName string, c *fiber.Ctx) {
 	defer os.RemoveAll(sandboxDir) // cleanup after run
 
 	// 🧩 Copy your template project files into this temp sandbox
-	templateDir := "/home/avadhoot/Projects/CodeRacer/code-exec/js-template"
+	// templateDir := "/home/avadhoot/Projects/CodeRacer/code-exec/js-template"
+	templateDir := os.Getenv("TEMPLATE_DIR_PATH")
 	err = copyDir(templateDir, sandboxDir)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to copy template"})
@@ -56,11 +57,23 @@ func ExecCode(code string, problemName string, c *fiber.Ctx) {
 		return
 	}
 
+	backendCommand := []string{"bash", "-c", "pnpm install --ignore-scripts --frozen-lockfile && pnpm exec jest --json --outputFile=result.json"}
+
+	frontendCommand := []string{"bash", "-c", "pnpm install --ignore-scripts --frozen-lockfile && pnpm exec jest --json --outputFile=result.json"}
+
+	var Command []string
+	if isFrontendCode {
+		Command = frontendCommand 
+	}else {
+		Command = backendCommand
+	}
+
 	//  Create container using sandbox as volume
 	resp, err := cli.ContainerCreate(ctx, &container.Config{
 		Image:      "node-pnpm-runner:latest",
 		User:       "root",
-		Cmd:        []string{"bash", "-c", "pnpm install --ignore-scripts --frozen-lockfile && pnpm exec jest --json --outputFile=result.json"},
+		// Cmd:        []string{"bash", "-c", "pnpm install --ignore-scripts --frozen-lockfile && pnpm exec jest --json --outputFile=result.json"},
+		Cmd: Command,
 		WorkingDir: "/sandbox",
 		Tty:        false,
 	}, &container.HostConfig{
@@ -149,72 +162,3 @@ func copyDir(src string, dest string) error {
 	})
 }
 
-// func ExecHandler() {
-// 	ctx := context.Background()
-// 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer cli.Close()
-
-// 	// reader, err := cli.ImagePull(ctx, "node-pnpm-runner:latest", image.PullOptions{})
-// 	// if err != nil {
-// 	// 	panic(err)
-// 	// }
-
-// 	// defer reader.Close()
-// 	// cli.ImagePull is asynchronous.
-// 	// The reader needs to be read completely for the pull operation to complete.
-// 	// If stdout is not required, consider using io.Discard instead of os.Stdout.
-// 	// io.Copy(os.Stdout, reader)
-//  // sudo docker run --rm \\n  -u root \\n  -v /home/avadhoot/Playground/code-exec/hello-world-template:/sandbox \\n  -w /sandbox \\n  node-pnpm-runner:latest \\n  bash -c "pnpm exec jest --json --outputFile=result.json && \\n    cat result.json | jq '{total: .numTotalTests, passed: .numPassedTests, failed: .numFailedTests}'"\n
-
-// 	resp, err := cli.ContainerCreate(ctx, &container.Config{
-// 		Image: "node-pnpm-runner:latest",
-// 		User:  "root",
-// 		Cmd:   []string{"bash", "-c", "pnpm exec jest --json --outputFile=result.json ; cat result.json"},
-// 		WorkingDir: "/sandbox",
-// 		Tty:   false,
-// 	}, &container.HostConfig{
-// 			Binds: []string{
-// 				"/home/avadhoot/Playground/code-exec/hello-world-template:/sandbox",
-// 			},
-
-// 		}, nil, nil, "")
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	defer func() {
-// 		cli.ContainerRemove(ctx, resp.ID, container.RemoveOptions{Force: true})
-// 	}()
-
-// 	if err := cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
-// 		panic(err)
-// 	}
-
-// 	statusCh, errCh := cli.ContainerWait(ctx, resp.ID, container.WaitConditionNotRunning)
-// 	select {
-// 	case err := <-errCh:
-// 		if err != nil {
-// 			panic(err)
-// 		}
-// 	case <-statusCh:
-// 	}
-
-// 	data, err := os.ReadFile("/home/avadhoot/Projects/CodeRacer/code-exec/hello-world-template/result.json")
-// 	if err!= nil {
-// 		panic(err)
-// 	}
-
-// 	var result JestResult
-// 	json.Unmarshal(data, &result)
-// 	fmt.Printf("Total: %v, Passed: %v, Failed: %v", result.NumTotalTests, result.NumPassedTests, result.NumFailedTests)
-
-// 	// out, err := cli.ContainerLogs(ctx, resp.ID, container.LogsOptions{ShowStdout: true})
-// 	// if err != nil {
-// 	// 	panic(err)
-// 	// }
-
-// 	// stdcopy.StdCopy(os.Stdout, os.Stderr, out)
-// }

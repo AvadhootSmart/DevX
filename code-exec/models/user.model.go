@@ -6,7 +6,7 @@ import (
 
 type User struct {
 	gorm.Model
-	Username string `gorm:uniqueIndex`
+	Username string `gorm:"uniqueIndex"`
 	Password string
 	Email string `gorm:"uniqueIndex"`
 	Submissions []Submission `gorm:"foreignKey:UserID"`

@@ -7,7 +7,7 @@ export type Test = {
 export type Difficulty = "easy" | "medium" | "hard";
 
 export interface IProblem {
-  id: string;
+  path: string;
   problem_name: string;
   description: string;
   difficulty: Difficulty;

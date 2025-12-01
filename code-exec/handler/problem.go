@@ -19,7 +19,7 @@ func NewDbHandler(db *gorm.DB) *DbHandler {
 
 func (h *DbHandler) CreateProblem(c *fiber.Ctx) error {
 	var req struct {
-		ID          string   `json:"id"`
+		Path 		string   `json:"path"`
 		Name        string   `json:"problem_name"`
 		Description string   `json:"description"`
 		Difficulty  string   `json:"difficulty"`
@@ -39,16 +39,16 @@ func (h *DbHandler) CreateProblem(c *fiber.Ctx) error {
 	}
 
 	//validate request
-	if req.ID == "" || req.Name == "" || req.Description == "" || req.Difficulty == "" || req.Boilerplate == "" || len(req.Topics) == 0 {
+	if req.Path == "" || req.Name == "" || req.Description == "" || req.Difficulty == "" || req.Boilerplate == "" || len(req.Topics) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Missing required fields"})
 	}
 
-	if err := h.db.Where("id = ?", req.ID).First(&models.Problem{}).Error; err == nil {
+	if err := h.db.Where("problem_name = ?", req.Name).First(&models.Problem{}).Error; err == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Problem already exists"})
 	}
 
 	problem := models.Problem{
-		ID:          req.ID,
+		Path:        req.Path,
 		Name:        req.Name,
 		Description: req.Description,
 		Difficulty:  req.Difficulty,
@@ -76,11 +76,12 @@ func (h *DbHandler) GetProblems(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(problems)
 }
 
-func (h *DbHandler) GetProblemById(c *fiber.Ctx) error {
+func (h *DbHandler) GetProblemByPath(c *fiber.Ctx) error {
 	var problem models.Problem
-	if err := h.db.Where("id = ?", c.Params("id")).First(&problem).Error; err != nil {
+	if err := h.db.Where("path = ?", c.Params("path")).First(&problem).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Problem not found"})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(problem)
 }
+

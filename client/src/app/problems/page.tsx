@@ -30,11 +30,11 @@ const page = () => {
       <div className="space-y-2 my-6">
         {problems &&
           problems.map((problem, idx) => (
-            <Card key={problem.problem_name} className="p-3 rounded-md">
+            <Card key={problem.problem_name} className="p-3 rounded-md border-border">
               <CardContent className="flex justify-between items-center">
                 <Link
                   className="font-medium text-lg hover:underline"
-                  href={`/problem/${problem.id}`}
+                  href={`/problem/${problem.path}`}
                 >{`${idx + 1}.${problem.problem_name}`}</Link>
                 <DifficultyBadge difficulty={problem.difficulty} />
               </CardContent>

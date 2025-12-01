@@ -56,7 +56,7 @@ func main(){
 	//Problem routes
 	app.Post("/create/problem", dbHandler.CreateProblem)
 	app.Get("/problems", dbHandler.GetProblems)
-	app.Get("/problem/:id", dbHandler.GetProblemById)
+	app.Get("/problem/:path", dbHandler.GetProblemByPath)
 
 	//Auth routes
 	app.Post("/register", dbHandler.RegisterUser)
@@ -65,14 +65,18 @@ func main(){
 	app.Get("/user/:id", dbHandler.GetUserById)
 
 
-	// api := app.Group("", middlewares.IsAuthenticated)
-	// app.Get("/me", middlewares.IsAuthenticated, handler.MeHandler)
+	app.Get("/v1/me", middlewares.IsAuthenticated, handler.MeHandler)
 	app.Get("/me", middlewares.IsAuthenticated, dbHandler.GetUserById)
 
-	app.Post("/submit", func(c *fiber.Ctx) error {
+	app.Post("/submit", middlewares.IsAuthenticated, dbHandler.SubmitProblem)
+	app.Get("/submissions", middlewares.IsAuthenticated, dbHandler.GetUserSubmissions)
+
+
+
+	app.Post("/v1/submit", func(c *fiber.Ctx) error {
 		type Request struct {
 			Code string `json:"code"`
-			ProblemName string `json:"problem_name"`
+			ProblemPath string `json:"problem_path"`
 		}
 
 		var req Request
@@ -80,25 +84,25 @@ func main(){
 			return err
 		}
 		// handler.ExecHandler(req.code)
-		handler.ExecCode(req.Code,req.ProblemName,c)
+		handler.ExecCode(req.Code,req.ProblemPath,false, c)
 
 		return nil
 	})
 
-	app.Get("/v1/problem/:id", func(c *fiber.Ctx) error {
-		id := c.Params("id")
+	// app.Get("/v1/problem/:id", func(c *fiber.Ctx) error {
+	// 	id := c.Params("id")
 
-		problemsMap := map[string]problems.IProblem{
-			"hello-api": problems.PROBLEM_HELLO,
-			"pagination": problems.PROBLEM_PAGINATION,
-		}
+	// 	problemsMap := map[string]problems.IProblem{
+	// 		"hello-api": problems.PROBLEM_HELLO,
+	// 		"pagination": problems.PROBLEM_PAGINATION,
+	// 	}
 
-		problemData := problemsMap[id]
+	// 	problemData := problemsMap[id]
 
-		return c.JSON(fiber.Map{
-			"problem": problemData,
-		})
-	})
+	// 	return c.JSON(fiber.Map{
+	// 		"problem": problemData,
+	// 	})
+	// })
 
 	app.Get("/solution/:id", func(c *fiber.Ctx) error {
 		id := c.Params("id")

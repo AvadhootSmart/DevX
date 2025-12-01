@@ -24,13 +24,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* <head> */}
-      {/*   <script */}
-      {/*     async */}
-      {/*     crossOrigin="anonymous" */}
-      {/*     src="https://tweakcn.com/live-preview.min.js" */}
-      {/*   /> */}
-      {/* </head> */}
+      <head>
+        <script
+          async
+          crossOrigin="anonymous"
+          src="https://tweakcn.com/live-preview.min.js"
+        />
+      </head>
       <body className={`${inter.variable} antialiased font-inter`}>
         <ThemeProvider attribute="class">
           <main className="min-h-screen max-w-7xl mx-auto">
