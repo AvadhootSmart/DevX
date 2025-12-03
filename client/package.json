@@ -27,6 +27,7 @@
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "esbuild-wasm": "^0.27.0",
     "lucide-react": "^0.554.0",
     "monaco-editor": "^0.55.1",
     "monaco-vim": "^0.4.2",
