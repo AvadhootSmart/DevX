@@ -12,8 +12,8 @@ import (
 )
 
 func (h *DbHandler) LoginUser(c *fiber.Ctx) error {
-	data := struct{
-		Email string `json:"email"`
+	data := struct {
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}{}
 
@@ -31,11 +31,13 @@ func (h *DbHandler) LoginUser(c *fiber.Ctx) error {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24).Unix(),
+		"email":    user.Email,
+		"id":       user.ID,
+		"username": user.Username,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	signedToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET"))) 
+	signedToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
@@ -43,9 +45,9 @@ func (h *DbHandler) LoginUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"token": signedToken})
 }
 
-func (h *DbHandler) RegisterUser(c *fiber.Ctx) error{
-	data := struct{
-		Email string `json:"email"`
+func (h *DbHandler) RegisterUser(c *fiber.Ctx) error {
+	data := struct {
+		Email    string `json:"email"`
 		Password string `json:"password"`
 		Username string `json:"username"`
 	}{}
@@ -58,7 +60,6 @@ func (h *DbHandler) RegisterUser(c *fiber.Ctx) error{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Missing required fields"})
 	}
 
-
 	var existingUser models.User
 	if err := h.db.Where("email = ?", data.Email).First(&existingUser).Error; err == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email already in use"})
@@ -69,7 +70,7 @@ func (h *DbHandler) RegisterUser(c *fiber.Ctx) error{
 	}
 
 	hashed, err := bcrypt.GenerateFromPassword([]byte(data.Password), bcrypt.DefaultCost)
-	if err != nil{
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to hash password"})
 	}
 
@@ -84,8 +85,8 @@ func (h *DbHandler) RegisterUser(c *fiber.Ctx) error{
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "User created successfully", "user": fiber.Map{
-		"id":    newUser.ID,
-		"email": newUser.Email,
+		"id":       newUser.ID,
+		"email":    newUser.Email,
 		"username": newUser.Username,
 	}})
 }

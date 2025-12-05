@@ -15,19 +15,7 @@ import (
 	// "github.com/docker/docker/api/types/strslice"
 )
 
-func main(){
-	// imageName:= "node-pnpm-runner:latest";
-	// command := strslice.StrSlice{"bash", "-c", "pnpm exec jest --json --outputFile=result.json ; cat result.json"}
-	// imageName := "go-runner:latest"
-	// command := strslice.StrSlice{"bash", "-c", "go test -json -output=result.json && cat result.json"}
-	// templateDir := "/home/avadhoot/Playground/code-exec/sum-template/result.json"
-	// handler.ExecHandler()
-
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	log.Fatal("Error loading .env file")
-	// }
-
+func main() {
 	db := db.ConnectDB()
 	db.AutoMigrate(&models.User{}, &models.Problem{}, &models.Submission{})
 
@@ -37,8 +25,6 @@ func main(){
 			return c.Method() == "OPTIONS"
 		},
 	}))
-
-
 
 	// var CLIENT_URL string = os.Getenv("PROD_URL")
 	app.Use(cors.New(cors.Config{
@@ -62,8 +48,8 @@ func main(){
 	app.Post("/register", dbHandler.RegisterUser)
 	app.Post("/login", dbHandler.LoginUser)
 
-	app.Get("/user/:id", dbHandler.GetUserById)
-
+	// app.Get("/user/:id", dbHandler.GetUserById)
+	app.Get("/user/:email", dbHandler.GetUserByEmail)
 
 	app.Get("/v1/me", middlewares.IsAuthenticated, handler.MeHandler)
 	app.Get("/me", middlewares.IsAuthenticated, dbHandler.GetUserById)
@@ -71,11 +57,9 @@ func main(){
 	app.Post("/submit", middlewares.IsAuthenticated, dbHandler.SubmitProblem)
 	app.Get("/submissions", middlewares.IsAuthenticated, dbHandler.GetUserSubmissions)
 
-
-
 	app.Post("/v1/submit", func(c *fiber.Ctx) error {
 		type Request struct {
-			Code string `json:"code"`
+			Code        string `json:"code"`
 			ProblemPath string `json:"problem_path"`
 		}
 
@@ -84,7 +68,7 @@ func main(){
 			return err
 		}
 		// handler.ExecHandler(req.code)
-		handler.ExecCode(req.Code,req.ProblemPath,false, c)
+		handler.ExecCode(req.Code, req.ProblemPath, false, c)
 
 		return nil
 	})
@@ -108,12 +92,12 @@ func main(){
 		id := c.Params("id")
 
 		solutionsMap := map[string]string{
-			"hello-api": problems.SOLUTION_HELLO,
+			"hello-api":  problems.SOLUTION_HELLO,
 			"pagination": problems.SOLUTION_PAGINATION,
 		}
 		solutionCode := solutionsMap[id]
 		return c.JSON(fiber.Map{
-			"code": solutionCode,
+			"code":      solutionCode,
 			"problemId": id,
 		})
 	})

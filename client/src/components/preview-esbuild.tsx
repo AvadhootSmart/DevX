@@ -31,7 +31,7 @@ export const PreviewEsbuild = ({ code }: PreviewEsbuildProps) => {
   <head>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="bg-white h-screen m-0 p-0 flex items-center justify-center">
+  <body class="bg-white dark:bg-zinc-900 border-0 h-screen m-0 p-0">
     <div id="root"></div>
 
     <script type="module">
@@ -109,7 +109,7 @@ export const PreviewEsbuild = ({ code }: PreviewEsbuildProps) => {
     <iframe
       ref={iframeRef}
       sandbox="allow-scripts allow-same-origin"
-      className="w-full h-full bg-white"
+      className="w-full h-full"
     />
   );
 };

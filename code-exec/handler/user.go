@@ -19,11 +19,18 @@ func (h *DbHandler) GetUserById(c *fiber.Ctx) error {
 
 func (h *DbHandler) GetUserByEmail(c *fiber.Ctx) error {
 	var user models.User
-	if err := h.db.Where("email = ?", c.Params("email")).First(&user).Error; err != nil {
+	email := c.Params("email")
+	if err := h.db.Where("email = ?", email).First(&user).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(user)
+	userMap := map[string]interface{}{
+		"id":       user.ID,
+		"email":    user.Email,
+		"username": user.Username,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(userMap)
 }
 
 func (h *DbHandler) GetUsers(c *fiber.Ctx) error {
@@ -36,7 +43,7 @@ func (h *DbHandler) GetUsers(c *fiber.Ctx) error {
 }
 
 func MeHandler(c *fiber.Ctx) error {
-	email := utils.GetEmailFromToken(c.Locals("user").(*jwt.Token))
+	data := utils.GetEmailFromToken(c.Locals("user").(*jwt.Token))
 
-	return c.Status(fiber.StatusOK).JSON(email)
+	return c.Status(fiber.StatusOK).JSON(data)
 }

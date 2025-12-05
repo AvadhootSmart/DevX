@@ -40,7 +40,7 @@ export const AuthPopup = ({ children }: { children: React.ReactNode }) => {
     setEmail("");
     setPassword("");
 
-    setToken(response);
+    setToken(response.token);
   };
   return (
     <>

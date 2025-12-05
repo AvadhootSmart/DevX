@@ -19,12 +19,13 @@ func NewDbHandler(db *gorm.DB) *DbHandler {
 
 func (h *DbHandler) CreateProblem(c *fiber.Ctx) error {
 	var req struct {
-		Path 		string   `json:"path"`
+		Path        string   `json:"path"`
 		Name        string   `json:"problem_name"`
 		Description string   `json:"description"`
 		Difficulty  string   `json:"difficulty"`
 		Boilerplate string   `json:"boilerplate"`
 		Topics      []string `json:"topics"`
+		Domain      string   `json:"domain"`
 	}
 
 	//parse json
@@ -39,7 +40,7 @@ func (h *DbHandler) CreateProblem(c *fiber.Ctx) error {
 	}
 
 	//validate request
-	if req.Path == "" || req.Name == "" || req.Description == "" || req.Difficulty == "" || req.Boilerplate == "" || len(req.Topics) == 0 {
+	if req.Path == "" || req.Name == "" || req.Description == "" || req.Difficulty == "" || req.Boilerplate == "" || len(req.Topics) == 0 || req.Domain == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Missing required fields"})
 	}
 
@@ -54,6 +55,7 @@ func (h *DbHandler) CreateProblem(c *fiber.Ctx) error {
 		Difficulty:  req.Difficulty,
 		Boilerplate: req.Boilerplate,
 		Topics:      datatypes.JSON(topicsJSON),
+		Domain:      models.Domain(req.Domain),
 	}
 
 	if err := h.db.Create(&problem).Error; err != nil {
@@ -84,4 +86,3 @@ func (h *DbHandler) GetProblemByPath(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(problem)
 }
-

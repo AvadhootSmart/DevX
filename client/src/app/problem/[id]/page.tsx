@@ -20,6 +20,9 @@ import { cn } from "@/lib/utils";
 import useUser from "../../../../store/user.store";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
+import { ProblemHeader, LayoutType } from "@/components/problem-page/problem-header";
+import { PreviewEsbuild } from "@/components/preview-esbuild";
+import { motion, AnimatePresence } from "motion/react";
 
 const Page = () => {
   const { id } = useParams();
@@ -31,6 +34,8 @@ const Page = () => {
   const [problem, setProblem] = useState<IProblem | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
+  const [layout, setLayout] = useState<LayoutType>("classic");
+  const [code, setCode] = useState<string>("");
 
   const editorRef = useRef<any>(null);
   const vimRef = useRef<VimEditorHandle>(null);
@@ -40,12 +45,19 @@ const Page = () => {
     editorRef.current = editor;
 
     // Disable unwanted actions
-    editor.onDidPaste(() => editor.trigger("keyboard", "undo", null));
+    // editor.onDidPaste(() => editor.trigger("keyboard", "undo", null));
     editor.onContextMenu((e: any) => e.event.preventDefault());
 
     // If the problem is already loaded, set the boilerplate
     if (boilerplateRef.current) {
       editor.setValue(boilerplateRef.current);
+      setCode(boilerplateRef.current);
+    }
+  };
+
+  const handleEditorChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      setCode(value);
     }
   };
 
@@ -57,9 +69,10 @@ const Page = () => {
       );
       const data = await response.json();
 
-      console.log(data);
+      // console.log(data);
       boilerplateRef.current = data.boilerplate;
       setProblem(data);
+      setCode(data.boilerplate);
     } catch (error) {
       console.error("Failed to fetch problem data:", error);
     }
@@ -118,92 +131,201 @@ const Page = () => {
     if (vimRef.current) {
       vimRef.current.setValue(boilerplate);
     }
+    setCode(boilerplate);
   }, [problem]); // runs when problem loads
+
+  // Reset layout when problem domain changes
+  useEffect(() => {
+    if (problem) {
+      setLayout("classic");
+    }
+  }, [problem?.domain]);
+
+  const showDescription = ["classic", "bento", "full-description"].includes(
+    layout,
+  );
+  const showRightPane = [
+    "classic",
+    "focus",
+    "bento",
+    "full-preview",
+    "full-editor",
+  ].includes(layout);
+
+  const showEditor = ["classic", "focus", "bento", "full-editor"].includes(
+    layout,
+  );
+  const showPreview = ["focus", "bento", "full-preview"].includes(layout);
+
+  const isSplitRightPane = ["focus", "bento"].includes(layout);
 
   return (
     <div className="max-w-7xl mx-auto sm:py-4 py-4 px-2">
-      <header className="border border-border bg-card rounded-lg p-4 flex justify-between items-center">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-semibold">{problem?.problem_name}</h1>
-          <div className="flex flex-wrap gap-1">
-            {problem?.topics.map((topic) => (
-              <Badge key={topic} variant="outline" className="capitalize">
-                {topic}
-              </Badge>
-            ))}
-          </div>
-        </div>
-        <DifficultyBadge difficulty={problem?.difficulty} />
-      </header>
+      {/* <header className="border border-border bg-card rounded-lg p-4 flex justify-between items-center"> */}
+      {/*   <div className="space-y-1"> */}
+      {/*     <h1 className="text-3xl font-semibold">{problem?.problem_name}</h1> */}
+      {/*     <div className="flex flex-wrap gap-1"> */}
+      {/*       {problem?.topics.map((topic) => ( */}
+      {/*         <Badge key={topic} variant="outline" className="capitalize"> */}
+      {/*           {topic} */}
+      {/*         </Badge> */}
+      {/*       ))} */}
+      {/*     </div> */}
+      {/*   </div> */}
+      {/*   <DifficultyBadge difficulty={problem?.difficulty} /> */}
+      {/* </header> */}
+      {problem && (
+        <ProblemHeader
+          type={problem.domain}
+          problem={problem}
+          layout={layout}
+          setLayout={setLayout}
+        />
+      )}
 
-      <main className="grid grid-cols-1 h-[80vh] gap-4 mt-4 sm:grid-cols-2">
-        <div className="border border-border max-h-full overflow-scroll bg-card rounded-lg p-4">
-          <h2 className="text-xl font-semibold">Description</h2>
-          <p>{problem?.description}</p>
-        </div>
-
-        <div className="border border-border rounded-lg overflow-hidden relative">
-          {/* Toolbar */}
-          <div className="absolute bottom-0 right-0 p-4 z-10 flex w-full justify-between">
-            <Select
-              value={mode}
-              onValueChange={(value) => setMode(value as "normal" | "vim")}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select mode" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="vim">Vim</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              onClick={handleSubmit}
-              disabled={loading || !token}
-              className="cursor-pointer"
-            >
-              {!token ? (
-                "Login to submit"
-              ) : loading ? (
-                "Submitting..."
-              ) : (
-                <span className="flex items-center">
-                  Submit <Check className="size-4 ml-2" />
-                </span>
+      <main
+        className={cn(
+          "gap-4 mt-4 transition-all duration-300 ease-in-out",
+          layout === "bento" ? "flex flex-col" : "grid h-[80vh]",
+          layout !== "bento" &&
+          (showDescription && showRightPane
+            ? "grid-cols-1 sm:grid-cols-2"
+            : "grid-cols-1"),
+        )}
+      >
+        <AnimatePresence mode="popLayout">
+          {showDescription && (
+            <motion.div
+              layoutId="description-section"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className={cn(
+                "border border-border overflow-scroll bg-card rounded-lg p-4",
+                layout === "bento" ? "h-[20vh]" : "h-full",
               )}
-            </Button>
-          </div>
+            >
+              <h2 className="text-xl font-semibold">Description</h2>
+              <p>{problem?.description}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          <div className="relative w-full h-full">
-            <div className={mode === "normal" ? "block h-full" : "hidden"}>
-              <Editor
-                height="100%"
-                defaultLanguage="javascript"
-                theme={theme === "dark" ? "vs-dark" : "light"}
-                onMount={handleUserEditorMount}
-                defaultValue="// Write your code here"
-                options={{
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                  quickSuggestions: false,
-                  suggestOnTriggerCharacters: false,
-                  snippetSuggestions: "none",
-                }}
-              />
-            </div>
+        {showRightPane && (
+          <div
+            className={cn(
+              "grid gap-4 transition-all duration-300 ease-in-out h-[80vh]",
+              layout === "bento" ? "h-[60vh]" : "h-full",
+              isSplitRightPane ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1",
+            )}
+          >
+            {/* Editor Section */}
+            <AnimatePresence mode="popLayout">
+              {showEditor && (
+                <motion.div
+                  layoutId="editor-section"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className={cn(
+                    "border border-border rounded-lg overflow-hidden relative flex flex-col",
+                    layout === "bento" ? "h-[60vh]" : "h-[80vh]",
+                  )}
+                >
+                  <div className="absolute bottom-0 right-0 p-4 z-10 flex w-full justify-between pointer-events-none">
+                    <div className="pointer-events-auto">
+                    </div>
+                    <div className="flex gap-2 pointer-events-auto">
+                      <Select
+                        value={mode}
+                        onValueChange={(value) => setMode(value as "normal" | "vim")}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select mode" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="normal">Normal</SelectItem>
+                          <SelectItem value="vim">Vim</SelectItem>
+                        </SelectContent>
+                      </Select>
 
-            <VimEditor
-              ref={vimRef}
-              language="javascript"
-              theme={theme === "dark" ? "vs-dark" : "light"}
-              defaultValue="// Write your code here"
-              editorClassName={cn("rounded-2xl h-[80vh] w-full")}
-            />
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={loading || !token}
+                        className="cursor-pointer"
+                      >
+                        {!token ? (
+                          "Login to submit"
+                        ) : loading ? (
+                          "Submitting..."
+                        ) : (
+                          <span className="flex items-center">
+                            Submit <Check className="size-4 ml-2" />
+                          </span>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="relative w-full h-full">
+                    <div
+                      className={mode === "normal" ? "block h-full" : "hidden"}
+                    >
+                      <Editor
+                        height="100%"
+                        defaultLanguage="javascript"
+                        theme={theme === "dark" ? "vs-dark" : "light"}
+                        onMount={handleUserEditorMount}
+                        value={code}
+                        onChange={handleEditorChange}
+                        options={{
+                          minimap: { enabled: false },
+                          scrollBeyondLastLine: false,
+                          quickSuggestions: false,
+                          suggestOnTriggerCharacters: false,
+                          snippetSuggestions: "none",
+                        }}
+                      />
+                    </div>
+
+                    <VimEditor
+                      ref={vimRef}
+                      language="javascript"
+                      theme={theme === "dark" ? "vs-dark" : "light"}
+                      defaultValue="// Write your code here"
+                      editorClassName={cn("rounded-2xl h-[80vh] w-full")}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Preview Section */}
+            <AnimatePresence mode="sync">
+              {showPreview && (
+                <motion.div
+                  layoutId="preview-section"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{
+                    duration: 0.3,
+                    type: "spring",
+                    stiffness: 1000,
+                    damping: 100,
+                  }}
+                  className={cn("border border-border dark:border-0 rounded-lg overflow-scroll", layout === "bento" ? "h-[60vh]" : "h-[80vh]")}
+                >
+                  <PreviewEsbuild code={code} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </div>
+        )}
       </main>
-    </div>
+    </div >
   );
 };
 
