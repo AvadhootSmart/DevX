@@ -21,24 +21,30 @@ const page = () => {
     fetchProblems();
   }, []);
   return (
-    <div className="px-10">
+    <div className="sm:px-10 px-2">
       <h1 className="mt-10 text-3xl font-semibold">All Problems</h1>
       <h3 className="mt-2 text-md text-zinc-500">
         Explore problems that test your development skills.{" "}
       </h3>
 
-      <div className="space-y-2 my-6">
+      <div className="flex flex-col gap-2 my-6">
         {problems &&
           problems.map((problem, idx) => (
-            <Card key={problem.problem_name} className="p-3 rounded-md border-border">
-              <CardContent className="flex justify-between items-center">
-                <Link
-                  className="font-medium text-lg hover:underline"
-                  href={`/problem/${problem.path}`}
-                >{`${idx + 1}.${problem.problem_name}`}</Link>
-                <DifficultyBadge difficulty={problem.difficulty} />
-              </CardContent>
-            </Card>
+            <Link
+              href={`/problem/${problem.path}`}
+              key={problem.problem_name}
+              className="cursor-pointer"
+            >
+              <Card className="sm:p-3 rounded-md border-border">
+                <CardContent className="flex justify-between items-center">
+                  <Link
+                    className="font-medium text-lg hover:underline"
+                    href={`/problem/${problem.path}`}
+                  >{`${idx + 1}.${problem.problem_name}`}</Link>
+                  <DifficultyBadge difficulty={problem.difficulty} />
+                </CardContent>
+              </Card>
+            </Link>
           ))}
       </div>
     </div>

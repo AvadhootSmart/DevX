@@ -10,9 +10,9 @@ import (
 
 func (h *DbHandler) SubmitProblem(c *fiber.Ctx) error {
 	type Request struct {
-		Code string `json:"code"`
+		Code        string `json:"code"`
 		ProblemPath string `json:"problem_path"`
-		ProblemID uint `json:"problem_id"`
+		ProblemID   uint   `json:"problem_id"`
 	}
 
 	var req Request
@@ -31,13 +31,12 @@ func (h *DbHandler) SubmitProblem(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 
-
-	ExecCode(req.Code,req.ProblemPath, false, c)
+	ExecCode(req.Code, req.ProblemPath, false, c)
 
 	submission := models.Submission{
-		UserID:      user.ID,
-		ProblemID: 	 req.ProblemID,
-		Code:        req.Code,
+		UserID:    user.ID,
+		ProblemID: req.ProblemID,
+		Code:      req.Code,
 	}
 
 	if err := h.db.Create(&submission).Error; err != nil {
@@ -57,7 +56,7 @@ func (h *DbHandler) GetUserSubmissions(c *fiber.Ctx) error {
 	}
 
 	var submissions []models.Submission
-	if err := h.db.Where("user_id = ?", user.ID).Find(&submissions).Error; err != nil {
+	if err := h.db.Preload("Problem").Where("user_id = ?", user.ID).Find(&submissions).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to get submissions"})
 	}
 
