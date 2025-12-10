@@ -11,6 +11,7 @@ enum Domain {
   BACKEND = "backend",
 }
 export interface IProblem {
+  ID: string | number;
   path: string;
   problem_name: string;
   description: string;

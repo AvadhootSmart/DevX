@@ -5,7 +5,7 @@ import { expect, test, vi } from "vitest";
 test("button initially shows Hello", async () => {
   vi.resetModules();
 
-  const UserComponentModule = await import("../sandbox/user-code.jsx");
+  const UserComponentModule = await import("./submission.jsx");
   const UserComponent = UserComponentModule.default;
 
   render(<UserComponent />);
@@ -18,7 +18,7 @@ test("button clicks increment counter text", async () => {
   vi.resetModules();
   const user = userEvent.setup();
 
-  const UserComponentModule = await import("../sandbox/user-code.jsx");
+  const UserComponentModule = await import("./submission.jsx");
   const UserComponent = UserComponentModule.default;
 
   render(<UserComponent />);

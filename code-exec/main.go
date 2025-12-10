@@ -6,6 +6,7 @@ import (
 	"code-exec/middlewares"
 	"code-exec/models"
 	"code-exec/static-data/problems"
+	"time"
 
 	// "os"
 
@@ -19,7 +20,11 @@ func main() {
 	db := db.ConnectDB()
 	db.AutoMigrate(&models.User{}, &models.Problem{}, &models.Submission{})
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ReadTimeout:  30 * time.Second, // Increase read timeout to 30 seconds
+		WriteTimeout: 30 * time.Second, // Increase write timeout to 30 seconds
+		IdleTimeout:  60 * time.Second, // Keep connections alive for 60 seconds
+	})
 	app.Use(logger.New(logger.Config{
 		Next: func(c *fiber.Ctx) bool {
 			return c.Method() == "OPTIONS"
@@ -61,16 +66,20 @@ func main() {
 		type Request struct {
 			Code        string `json:"code"`
 			ProblemPath string `json:"problem_path"`
+			IsFrontend  bool   `json:"is_frontend"`
 		}
 
 		var req Request
 		if err := c.BodyParser(&req); err != nil {
 			return err
 		}
-		// handler.ExecHandler(req.code)
-		handler.ExecCode(req.Code, req.ProblemPath, false, c)
 
-		return nil
+		result, err := handler.ExecCode(req.Code, req.ProblemPath, req.IsFrontend, c)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+		}
+
+		return c.JSON(result)
 	})
 
 	// app.Get("/v1/problem/:id", func(c *fiber.Ctx) error {

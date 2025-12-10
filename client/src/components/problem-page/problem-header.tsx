@@ -85,11 +85,11 @@ export const ProblemHeader = ({
         className={cn(
           "h-full w-[20%] right-0 bg-white absolute",
           problem.difficulty === "easy" &&
-          "bg-gradient-to-l from-green-400 to-transparent",
+          "bg-gradient-to-l dark:from-green-900 from-green-300 to-transparent",
           problem.difficulty === "medium" &&
-          "bg-gradient-to-l from-yellow-400 to-transparent",
+          "bg-gradient-to-l from-yellow-900 to-transparent",
           problem.difficulty === "hard" &&
-          "bg-gradient-to-l from-red-400 to-transparent",
+          "bg-gradient-to-l from-red-900 to-transparent",
         )}
       />
 

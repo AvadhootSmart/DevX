@@ -1,10 +1,11 @@
 "use client";
 import { DifficultyBadge } from "@/components/difficultyBadge";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { PROBLEMS } from "@/static_data/problems";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IProblem } from "../../../types/problem.types";
+import { Badge } from "@/components/ui/badge";
 
 const page = () => {
   const [problems, setProblems] = useState<IProblem[] | null>();
@@ -35,12 +36,25 @@ const page = () => {
               key={problem.problem_name}
               className="cursor-pointer"
             >
-              <Card className="sm:p-3 rounded-md border-border">
-                <CardContent className="flex justify-between items-center">
-                  <Link
-                    className="font-medium text-lg hover:underline"
-                    href={`/problem/${problem.path}`}
-                  >{`${idx + 1}.${problem.problem_name}`}</Link>
+              <Card className="cursor-pointer hover:bg-accent/50 transition-colors p-0 group">
+                <CardContent className="flex justify-between items-center p-4 group-hover:px-6 transition-all">
+                  <div>
+                    <CardHeader className="p-0">
+                      <CardTitle className="text-lg">
+                        {problem.problem_name}
+                      </CardTitle>
+                    </CardHeader>
+                    <div className="flex flex-wrap gap-1">
+                      {problem.domain && (
+                        <Badge variant="outline">{problem.domain}</Badge>
+                      )}
+                      {problem.topics.map((topic) => (
+                        <Badge key={topic} variant="secondary">
+                          {topic}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </CardContent>
               </Card>

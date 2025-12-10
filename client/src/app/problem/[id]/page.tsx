@@ -20,9 +20,14 @@ import { cn } from "@/lib/utils";
 import useUser from "../../../../store/user.store";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
-import { ProblemHeader, LayoutType } from "@/components/problem-page/problem-header";
+import {
+  ProblemHeader,
+  LayoutType,
+} from "@/components/problem-page/problem-header";
 import { PreviewEsbuild } from "@/components/preview-esbuild";
 import { motion, AnimatePresence } from "motion/react";
+import { SubmissionResultDialog } from "@/components/submission-result-dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Page = () => {
   const { id } = useParams();
@@ -36,6 +41,8 @@ const Page = () => {
   const [result, setResult] = useState<any | null>(null);
   const [layout, setLayout] = useState<LayoutType>("classic");
   const [code, setCode] = useState<string>("");
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const [submittedCode, setSubmittedCode] = useState<string>("");
 
   const editorRef = useRef<any>(null);
   const vimRef = useRef<VimEditorHandle>(null);
@@ -71,6 +78,7 @@ const Page = () => {
 
       // console.log(data);
       boilerplateRef.current = data.boilerplate;
+      console.log(data);
       setProblem(data);
       setCode(data.boilerplate);
     } catch (error) {
@@ -91,24 +99,59 @@ const Page = () => {
         ? editorRef.current?.getValue()
         : vimRef.current?.getValue();
 
+    // Save the submitted code
+    setSubmittedCode(submissionCode);
+
+    // Create an AbortController with a 20-second timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
     try {
       const response = await fetch("http://localhost:8000/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           code: submissionCode,
           problem_path: problem?.path,
+          problem_id: problem?.ID,
         }),
+        signal: controller.signal,
       });
 
+      // Clear the timeout if request completes successfully
+      clearTimeout(timeoutId);
+
       const data = await response.json();
-      setResult({
-        NumTotalTests: data.total,
-        NumPassedTests: data.passed,
-        NumFailedTests: data.failed,
-      });
+
+      // Format the result to match the dialog's expected structure
+      const formattedResult = {
+        message: data.message || "Submission created successfully",
+        results: {
+          numTotalTests: data.results?.numTotalTests || 0,
+          numPassedTests: data.results?.numPassedTests || 0,
+          numFailedTests: data.results?.numFailedTests || 0,
+        },
+      };
+
+      setResult(formattedResult);
+      setShowResultDialog(true);
     } catch (error) {
+      // Clear the timeout in case of error
+      clearTimeout(timeoutId);
+
       console.error("Failed to submit code:", error);
+
+      // Check if the error is due to timeout
+      if (error instanceof Error && error.name === "AbortError") {
+        toast.error(
+          "Submission timed out. The server is taking too long to respond. Please try again.",
+        );
+      } else {
+        toast.error("Failed to submit code. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -161,19 +204,6 @@ const Page = () => {
 
   return (
     <div className="max-w-7xl mx-auto sm:py-4 py-4 px-2">
-      {/* <header className="border border-border bg-card rounded-lg p-4 flex justify-between items-center"> */}
-      {/*   <div className="space-y-1"> */}
-      {/*     <h1 className="text-3xl font-semibold">{problem?.problem_name}</h1> */}
-      {/*     <div className="flex flex-wrap gap-1"> */}
-      {/*       {problem?.topics.map((topic) => ( */}
-      {/*         <Badge key={topic} variant="outline" className="capitalize"> */}
-      {/*           {topic} */}
-      {/*         </Badge> */}
-      {/*       ))} */}
-      {/*     </div> */}
-      {/*   </div> */}
-      {/*   <DifficultyBadge difficulty={problem?.difficulty} /> */}
-      {/* </header> */}
       {problem && (
         <ProblemHeader
           type={problem.domain}
@@ -188,9 +218,9 @@ const Page = () => {
           "gap-4 mt-4 transition-all duration-300 ease-in-out",
           layout === "bento" ? "flex flex-col" : "grid h-[80vh]",
           layout !== "bento" &&
-          (showDescription && showRightPane
-            ? "grid-cols-1 sm:grid-cols-2"
-            : "grid-cols-1"),
+            (showDescription && showRightPane
+              ? "grid-cols-1 sm:grid-cols-2"
+              : "grid-cols-1"),
         )}
       >
         <AnimatePresence mode="popLayout">
@@ -202,12 +232,20 @@ const Page = () => {
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className={cn(
-                "border border-border overflow-scroll bg-card rounded-lg p-4",
+                "border border-border bg-card rounded-lg p-4",
                 layout === "bento" ? "h-[20vh]" : "h-full",
               )}
             >
-              <h2 className="text-xl font-semibold">Description</h2>
-              <p>{problem?.description}</p>
+              <ScrollArea>
+                <h2 className="text-xl font-semibold">Description</h2>
+                {/* <p>{problem?.description}</p> */}
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: problem?.description || "",
+                  }}
+                  className="prose prose-stone"
+                />
+              </ScrollArea>
             </motion.div>
           )}
         </AnimatePresence>
@@ -235,10 +273,9 @@ const Page = () => {
                   )}
                 >
                   <div className="absolute bottom-0 right-0 p-4 z-10 flex w-full justify-between pointer-events-none">
-                    <div className="pointer-events-auto">
-                    </div>
+                    <div className="pointer-events-auto"></div>
                     <div className="flex gap-2 pointer-events-auto">
-                      <Select
+                      {/* <Select
                         value={mode}
                         onValueChange={(value) => setMode(value as "normal" | "vim")}
                       >
@@ -249,7 +286,7 @@ const Page = () => {
                           <SelectItem value="normal">Normal</SelectItem>
                           <SelectItem value="vim">Vim</SelectItem>
                         </SelectContent>
-                      </Select>
+                      </Select> */}
 
                       <Button
                         onClick={handleSubmit}
@@ -290,13 +327,13 @@ const Page = () => {
                       />
                     </div>
 
-                    <VimEditor
+                    {/* <VimEditor
                       ref={vimRef}
                       language="javascript"
                       theme={theme === "dark" ? "vs-dark" : "light"}
                       defaultValue="// Write your code here"
                       editorClassName={cn("rounded-2xl h-[80vh] w-full")}
-                    />
+                    /> */}
                   </div>
                 </motion.div>
               )}
@@ -316,7 +353,10 @@ const Page = () => {
                     stiffness: 1000,
                     damping: 100,
                   }}
-                  className={cn("border border-border dark:border-0 rounded-lg overflow-scroll", layout === "bento" ? "h-[60vh]" : "h-[80vh]")}
+                  className={cn(
+                    "border border-border dark:border-0 rounded-lg overflow-scroll",
+                    layout === "bento" ? "h-[60vh]" : "h-[80vh]",
+                  )}
                 >
                   <PreviewEsbuild code={code} />
                 </motion.div>
@@ -325,7 +365,16 @@ const Page = () => {
           </div>
         )}
       </main>
-    </div >
+
+      {/* Submission Result Dialog */}
+      <SubmissionResultDialog
+        open={showResultDialog}
+        onOpenChange={setShowResultDialog}
+        result={result}
+        submittedCode={submittedCode}
+        language="javascript"
+      />
+    </div>
   );
 };
 

@@ -38,7 +38,7 @@ const page = () => {
     fetchUsersSubmissions();
   }, [token]);
   return (
-    <div className="px-10">
+    <div className="sm:px-10 px-2">
       <h1 className="mt-10 text-4xl font-semibold">
         Hi, {user ? user.username : "User"}
       </h1>

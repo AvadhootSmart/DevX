@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { DifficultyBadge } from "./difficultyBadge";
 import { ISubmission } from "../../types/submission.types";
+import CodeBlock from "./code-block";
 
 export const SubmissionPopup = ({
   submission,
@@ -28,9 +29,13 @@ export const SubmissionPopup = ({
             <DifficultyBadge difficulty={submission.Problem.difficulty} />
           </DialogTitle>
         </DialogHeader>
-        <div className="flex-1 overflow-y-auto p-4 bg-muted rounded-md font-mono text-sm whitespace-pre-wrap">
-          {submission.Code}
-        </div>
+        {/* <code lang="javascript" className="flex-1 overflow-y-auto p-4 bg-muted rounded-md font-mono text-sm whitespace-pre-wrap"> */}
+        {/*   {submission.Code} */}
+        {/* </code> */}
+        <CodeBlock
+          className="flex-1 overflow-y-auto p-4 bg-muted rounded-md font-mono text-sm whitespace-pre-wrap"
+          code={submission.Code}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -1,13 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { useEffect, useRef, useState } from "react";
@@ -16,7 +9,6 @@ import { PreviewEsbuild } from "@/components/preview-esbuild";
 import { VimEditor, VimEditorHandle } from "@/components/vimEditor";
 import { Columns, Monitor, Code } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { COUNTER, COUNTER_2 } from "@/static_data/counter";
 import { FETCH_USERS } from "@/static_data/fetch";
 
 type LayoutMode = "split" | "editor" | "preview";
@@ -25,7 +17,7 @@ const Page = () => {
   const { theme } = useTheme();
   const [mode, setMode] = useState<"normal" | "vim">("normal");
   const [layout, setLayout] = useState<LayoutMode>("split");
-  const [code, setCode] = useState(FETCH_USERS)
+  const [code, setCode] = useState(FETCH_USERS);
 
   const editorRef = useRef<any>(null);
   const vimRef = useRef<VimEditorHandle>(null);
@@ -42,23 +34,6 @@ const Page = () => {
       setCode(value);
     }
   };
-
-  // Sync Vim editor changes to code state
-  useEffect(() => {
-    // This is a bit tricky with VimEditor as it might not expose a simple onChange for the underlying model in the same way
-    // But let's assume for now we can get value from it or it updates.
-    // Actually, the VimEditor component in the reference didn't seem to have an onChange prop in the usage example,
-    // but let's check if we can pass one or if we need to poll/listen.
-    // Looking at the usage in problem page:
-    // const submissionCode = mode === "normal" ? editorRef.current?.getValue() : vimRef.current?.getValue();
-    // It seems we pull value on submit. For live preview we need push.
-    // Let's assume we can pass onChange to VimEditor or Editor.
-    // The VimEditor wrapper might need inspection if it doesn't propagate onChange.
-    // For now, I will implement onChange for the standard Editor.
-    // For Vim mode, if the VimEditor wraps Monaco, it might accept onChange.
-    // Let's check VimEditor implementation if possible, but I don't have it open.
-    // I'll assume standard Editor props work for the underlying editor.
-  }, []);
 
   return (
     <div className="max-w-7xl mx-auto sm:py-4 py-4 px-2 h-screen flex flex-col">
@@ -101,10 +76,12 @@ const Page = () => {
       </header>
 
       <main className="flex-1 min-h-0 relative">
-        <div className={cn(
-          "grid gap-4 h-full transition-all duration-300 ease-in-out",
-          layout === "split" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"
-        )}>
+        <div
+          className={cn(
+            "grid gap-4 h-full transition-all duration-300 ease-in-out",
+            layout === "split" ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1",
+          )}
+        >
           {/* Editor Section */}
           <AnimatePresence mode="popLayout">
             {(layout === "split" || layout === "editor") && (
@@ -117,20 +94,22 @@ const Page = () => {
                 className="border border-border rounded-lg overflow-hidden relative flex flex-col h-full"
               >
                 {/* Toolbar */}
-                <div className="absolute bottom-4 right-4 z-10">
-                  <Select
-                    value={mode}
-                    onValueChange={(value) => setMode(value as "normal" | "vim")}
-                  >
-                    <SelectTrigger className="w-[100px] bg-background">
-                      <SelectValue placeholder="Select mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="normal">Normal</SelectItem>
-                      <SelectItem value="vim">Vim</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* <div className="absolute bottom-4 right-4 z-10"> */}
+                {/*   <Select */}
+                {/*     value={mode} */}
+                {/*     onValueChange={(value) => */}
+                {/*       setMode(value as "normal" | "vim") */}
+                {/*     } */}
+                {/*   > */}
+                {/*     <SelectTrigger className="w-[100px] bg-background"> */}
+                {/*       <SelectValue placeholder="Select mode" /> */}
+                {/*     </SelectTrigger> */}
+                {/*     <SelectContent> */}
+                {/*       <SelectItem value="normal">Normal</SelectItem> */}
+                {/*       <SelectItem value="vim">Vim</SelectItem> */}
+                {/*     </SelectContent> */}
+                {/*   </Select> */}
+                {/* </div> */}
 
                 <div className="flex-1 h-full relative">
                   <Editor
@@ -169,8 +148,13 @@ const Page = () => {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.3, type: "spring", stiffness: 1000, damping: 100 }}
-                className="border border-border dark:border-0 rounded-lg overflow-hidden h-full"
+                transition={{
+                  duration: 0.3,
+                  type: "spring",
+                  stiffness: 1000,
+                  damping: 100,
+                }}
+                className="border border-border dark:border-0 rounded-lg overflow-hidden"
               >
                 <PreviewEsbuild code={code} />
               </motion.div>

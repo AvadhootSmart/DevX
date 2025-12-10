@@ -31,11 +31,20 @@ func (h *DbHandler) SubmitProblem(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 
-	ExecCode(req.Code, req.ProblemPath, false, c)
+	var problem models.Problem
+	if err := h.db.Where("id = ?", req.ProblemID).First(&problem).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Problem not found"})
+	}
+
+	results, err := ExecCode(req.Code, req.ProblemPath, problem.Domain == "frontend", c)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
+	}
 
 	submission := models.Submission{
 		UserID:    user.ID,
 		ProblemID: req.ProblemID,
+		Result:    results,
 		Code:      req.Code,
 	}
 
@@ -43,7 +52,7 @@ func (h *DbHandler) SubmitProblem(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create submission"})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Submission created successfully"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Submission created successfully", "results": results})
 	// return nil
 }
 
