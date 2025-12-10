@@ -29,6 +29,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { SubmissionResultDialog } from "@/components/submission-result-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getProblemData } from "@/api/problems";
+import { submitCode } from "@/api/submission";
 
 const Page = () => {
   const { id } = useParams();
@@ -104,24 +105,12 @@ const Page = () => {
     const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     try {
-      const response = await fetch("http://localhost:8000/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          code: submissionCode,
-          problem_path: problem?.path,
-          problem_id: problem?.ID,
-        }),
-        signal: controller.signal,
-      });
+      if (!problem) {
+        toast.error("Refresh and try again");
+        return;
+      }
 
-      // Clear the timeout if request completes successfully
-      clearTimeout(timeoutId);
-
-      const data = await response.json();
+      const data = await submitCode(submissionCode, problem.path, problem.ID);
 
       // Format the result to match the dialog's expected structure
       const formattedResult = {
@@ -136,19 +125,7 @@ const Page = () => {
       setResult(formattedResult);
       setShowResultDialog(true);
     } catch (error) {
-      // Clear the timeout in case of error
-      clearTimeout(timeoutId);
-
-      console.error("Failed to submit code:", error);
-
-      // Check if the error is due to timeout
-      if (error instanceof Error && error.name === "AbortError") {
-        toast.error(
-          "Submission timed out. The server is taking too long to respond. Please try again.",
-        );
-      } else {
-        toast.error("Failed to submit code. Please try again.");
-      }
+      console.error("Error submitting code from client", error);
     } finally {
       setLoading(false);
     }
