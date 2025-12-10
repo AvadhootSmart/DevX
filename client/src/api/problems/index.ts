@@ -10,3 +10,13 @@ export const getProblems = async () => {
     toast.error("Error fetching problems");
   }
 };
+
+export const getProblemData = async (problemName: string) => {
+  try {
+    const response = await api.get(`/problem/${problemName}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching problem data", error);
+    toast.error("Error fetching problem data");
+  }
+};

@@ -28,6 +28,7 @@ import { PreviewEsbuild } from "@/components/preview-esbuild";
 import { motion, AnimatePresence } from "motion/react";
 import { SubmissionResultDialog } from "@/components/submission-result-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getProblemData } from "@/api/problems";
 
 const Page = () => {
   const { id } = useParams();
@@ -71,11 +72,7 @@ const Page = () => {
   // 🧠 Fetch problem data
   const fetchProblemData = async (problemName: string) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/problem/${problemName}`,
-      );
-      const data = await response.json();
-
+      const data = await getProblemData(problemName);
       // console.log(data);
       boilerplateRef.current = data.boilerplate;
       console.log(data);
