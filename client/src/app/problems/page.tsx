@@ -6,16 +6,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IProblem } from "../../../types/problem.types";
 import { Badge } from "@/components/ui/badge";
+import { getProblems } from "@/api/problems";
 
 const page = () => {
   const [problems, setProblems] = useState<IProblem[] | null>();
 
   const fetchProblems = async () => {
-    const response = await fetch("http://localhost:8000/problems");
-    const data = await response.json();
-
-    console.log("problems", data);
-    setProblems(data);
+    const response = await getProblems();
+    console.log("problems", response);
+    setProblems(response);
   };
 
   useEffect(() => {
