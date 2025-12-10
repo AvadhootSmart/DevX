@@ -20,7 +20,7 @@ import Link from "next/link";
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
   { href: "/problems", label: "Problems" },
-  { href: "/frontend-playground", label: "Playground" },
+  { href: "/playground", label: "Playground" },
 ];
 
 export function Navbar() {
