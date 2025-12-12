@@ -10,11 +10,9 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, Code2, Trophy } from "lucide-react";
 import CodeBlock from "@/components/code-block";
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 interface SubmissionResult {
     message?: string;
@@ -43,12 +41,11 @@ export const SubmissionResultDialog: React.FC<SubmissionResultDialogProps> = ({
     if (!result) return null;
 
     const { numTotalTests, numPassedTests, numFailedTests } = result.results;
-    const successRate = (numPassedTests / numTotalTests) * 100;
     const allTestsPassed = numPassedTests === numTotalTests;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="min-w-4xl max-h-[90vh] overflow-y-scroll overflow-x-hidden">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-2xl">
                         {allTestsPassed ? (
@@ -69,28 +66,11 @@ export const SubmissionResultDialog: React.FC<SubmissionResultDialogProps> = ({
                 </DialogHeader>
 
                 <div className="space-y-6 mt-4">
-                    {/* Test Results Summary */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg">Test Results Summary</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {/* Progress Bar */}
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span className="font-medium">Success Rate</span>
-                                    <span className="font-semibold">{successRate.toFixed(0)}%</span>
-                                </div>
-                                <Progress
-                                    value={successRate}
-                                    className={cn(
-                                        "h-3",
-                                        allTestsPassed && "[&>*]:bg-green-500"
-                                    )}
-                                />
-                            </div>
-
-                            {/* Test Stats Grid */}
                             <div className="grid grid-cols-3 gap-4 mt-4">
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <div className="text-3xl font-bold">{numTotalTests}</div>

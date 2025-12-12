@@ -1,15 +1,15 @@
 "use client";
 
-import { DifficultyBadge } from "@/components/difficultyBadge";
-import { Badge } from "@/components/ui/badge";
+// import { DifficultyBadge } from "@/components/difficultyBadge";
+// import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { VimEditor, VimEditorHandle } from "@/components/vimEditor";
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
@@ -37,7 +37,7 @@ const Page = () => {
 
   const { token } = useUser();
 
-  const [mode, setMode] = useState<"normal" | "vim">("normal");
+  // const [mode, setMode] = useState<"normal" | "vim">("normal");
   const [problem, setProblem] = useState<IProblem | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
@@ -47,7 +47,7 @@ const Page = () => {
   const [submittedCode, setSubmittedCode] = useState<string>("");
 
   const editorRef = useRef<any>(null);
-  const vimRef = useRef<VimEditorHandle>(null);
+  // const vimRef = useRef<VimEditorHandle>(null);
   const boilerplateRef = useRef<string>("");
 
   const handleUserEditorMount = (editor: any) => {
@@ -92,10 +92,12 @@ const Page = () => {
     }
     setLoading(true);
 
-    const submissionCode =
-      mode === "normal"
-        ? editorRef.current?.getValue()
-        : vimRef.current?.getValue();
+    // const submissionCode =
+    //   mode === "normal"
+    //     ? editorRef.current?.getValue()
+    //     : vimRef.current?.getValue();
+
+    const submissionCode = editorRef.current?.getValue();
 
     // Save the submitted code
     setSubmittedCode(submissionCode);
@@ -145,9 +147,9 @@ const Page = () => {
       editorRef.current.setValue(boilerplate);
     }
 
-    if (vimRef.current) {
-      vimRef.current.setValue(boilerplate);
-    }
+    // if (vimRef.current) {
+    //   vimRef.current.setValue(boilerplate);
+    // }
     setCode(boilerplate);
   }, [problem]); // runs when problem loads
 
@@ -192,9 +194,9 @@ const Page = () => {
           "gap-4 mt-4 transition-all duration-300 ease-in-out",
           layout === "bento" ? "flex flex-col" : "grid h-[80vh]",
           layout !== "bento" &&
-            (showDescription && showRightPane
-              ? "grid-cols-1 sm:grid-cols-2"
-              : "grid-cols-1"),
+          (showDescription && showRightPane
+            ? "grid-cols-1 sm:grid-cols-2"
+            : "grid-cols-1"),
         )}
       >
         <AnimatePresence mode="popLayout">
@@ -207,7 +209,7 @@ const Page = () => {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className={cn(
                 "border border-border bg-card rounded-lg p-4",
-                layout === "bento" ? "h-[20vh]" : "h-full",
+                layout === "bento" ? "h-[20vh] overflow-y-scroll" : "h-full",
               )}
             >
               <ScrollArea>
@@ -217,7 +219,7 @@ const Page = () => {
                   dangerouslySetInnerHTML={{
                     __html: problem?.description || "",
                   }}
-                  className="prose prose-stone"
+                  className="prose prose-stone dark:prose-invert max-w-none"
                 />
               </ScrollArea>
             </motion.div>
@@ -282,7 +284,8 @@ const Page = () => {
 
                   <div className="relative w-full h-full">
                     <div
-                      className={mode === "normal" ? "block h-full" : "hidden"}
+                      // className={mode === "normal" ? "block h-full" : "hidden"}
+                      className="block h-full"
                     >
                       <Editor
                         height="100%"

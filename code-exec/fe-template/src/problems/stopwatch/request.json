@@ -1,0 +1,14 @@
+{
+    "path": "stopwatch",
+    "problem_name": "Stopwatch",
+    "description": "<h2>Stopwatch</h2><p><strong>Task:</strong> Build a functional stopwatch.</p><p><strong>Requirements:</strong></p><ul><li>Start, Stop, and Reset buttons.</li><li>Display time in seconds (e.g. 1.5s).</li><li>Handle component cleanup (clearInterval).</li></ul>",
+    "difficulty": "Medium",
+    "boilerplate": "import React, { useState, useEffect, useRef } from 'react';\n\nexport default function Stopwatch() {\n  const [time, setTime] = useState(0);\n\n  return (\n    <div>\n      <h1>{time.toFixed(1)}s</h1>\n      <button>Start</button>\n      <button>Stop</button>\n      <button>Reset</button>\n    </div>\n  );\n}",
+    "topics": [
+        "frontend",
+        "react",
+        "hooks",
+        "timers"
+    ],
+    "domain": "frontend"
+}

@@ -1,0 +1,14 @@
+{
+    "path": "rate-limiter-bug",
+    "problem_name": "Rate Limiter Middleware Bug",
+    "description": "<h2>Rate Limiter Middleware Bug</h2><p>You have been assigned a Jira ticket regarding a critical bug in our backend services. The current rate limiter middleware is behaving unexpectedly.</p><p><strong>Ticket ID:</strong> BK-342</p><p><strong>Issue:</strong> The rate limiter seems to block all users when one user exceeds the limit (Global State Bug). Additionally, there are reports that it sometimes allows one extra request or resets incorrectly.</p><p><strong>Task:</strong> Refactor the middleware to:</p><ul><li>Track requests independently for each IP address.</li><li>Correctly enforce the request limit within the specified time window.</li><li>Reset the count correctly when the window expires.</li></ul>",
+    "difficulty": "Medium",
+    "boilerplate": "const rateLimiter = (limit, windowMs) => {\n  let requestCount = 0;\n  let startTime = Date.now();\n\n  return (req, res, next) => {\n    const currentTime = Date.now();\n    \n    // Bug: Logic allows bypassing limit if requests come right after window reset\n    // or simply doesn't scope by IP/User (Global rate limiter)\n    \n    if (currentTime - startTime < windowMs) {\n      if (requestCount < limit) {\n        requestCount++;\n        next();\n      } else {\n        res.status(430).json({ error: \"Too many requests\" });\n      }\n    } else {\n      startTime = currentTime;\n      requestCount = 0; // BUG: Should account for the current request!\n      next();\n    }\n  };\n};\n\nmodule.exports = rateLimiter;",
+    "topics": [
+        "backend",
+        "middleware",
+        "rate-limiting",
+        "bugfix"
+    ],
+    "domain": "backend"
+}

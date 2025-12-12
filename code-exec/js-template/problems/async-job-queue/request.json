@@ -1,0 +1,14 @@
+{
+    "path": "async-job-queue",
+    "problem_name": "Async Job Queue Implementation",
+    "description": "<h2>Async Job Queue Implementation</h2><p><strong>Ticket ID:</strong> BE-102</p><p><strong>Background:</strong> Our system needs to handle background tasks like sending emails and processing image uploads efficiently.</p><p><strong>Task:</strong> Implement a `JobQueue` class to support asynchronous job processing.</p><p><strong>Requirements:</strong></p><ul><li><strong>Add Jobs:</strong> `add(task, retries)` should accept an async task and optional retry count.</li><li><strong>Concurrency:</strong> The queue must process jobs up to a specified concurrency limit.</li><li><strong>Retries:</strong> Failed jobs should be automatically retried until retries are exhausted.</li><li><strong>Promise-based:</strong> The `add` method must return a Promise that resolves when the job succeeds or rejects when it fails after all retries.</li></ul>",
+    "difficulty": "Hard",
+    "boilerplate": "class JobQueue {\n  constructor(concurrency = 1) {\n    this.concurrency = concurrency;\n    this.queue = [];\n    this.activeCount = 0;\n  }\n\n  /**\n   * Adds a job to the queue.\n   * @param {Function} task - An async function that returns a promise.\n   * @param {number} retries - Number of retries on failure.\n   */\n  add(task, retries = 0) {\n    // TODO: Implement this method\n    // Should add job to the queue and trigger processing\n  }\n\n  /**\n   * Processes jobs from the queue with specified concurrency.\n   * Should handle retries if a job fails.\n   */\n  async process() {\n    // TODO: Implement this method\n  }\n}\n\nmodule.exports = JobQueue;",
+    "topics": [
+        "backend",
+        "async",
+        "concurrency",
+        "data-structures"
+    ],
+    "domain": "backend"
+}

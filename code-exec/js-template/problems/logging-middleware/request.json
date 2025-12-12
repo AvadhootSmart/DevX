@@ -1,0 +1,14 @@
+{
+    "path": "logging-middleware",
+    "problem_name": "Logging Middleware",
+    "description": "<h2>Logging Middleware</h2><p><strong>Ticket ID:</strong> DEV-001</p><p><strong>Task:</strong> Implement a simple logging middleware for our Express application.</p><p><strong>Requirements:</strong></p><ul><li>Log every request to the console in the format: <code>[METHOD] URL</code>.</li><li>Ensure the request continues to the next middleware or route handler.</li></ul><p><strong>Example:</strong></p><pre><code>GET /api/status\n// Console Output: [GET] /api/status</code></pre>",
+    "difficulty": "Easy",
+    "boilerplate": "const loggingMiddleware = (req, res, next) => {\n  // TODO: Log the request method and URL in the format: \"[METHOD] URL\"\n  // e.g., \"[GET] /api/users\"\n  \n  // Don't forget to call next() to pass control to the next middleware!\n  next();\n};\n\nmodule.exports = loggingMiddleware;",
+    "topics": [
+        "backend",
+        "express",
+        "middleware",
+        "logging"
+    ],
+    "domain": "backend"
+}

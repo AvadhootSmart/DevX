@@ -1,0 +1,14 @@
+{
+    "path": "character-counter",
+    "problem_name": "Character Counter",
+    "description": "<h2>Character Counter</h2><p><strong>Task:</strong> Build a character counter component.</p><p><strong>Requirements:</strong></p><ul><li>Input field for typing text.</li><li>Display \"Character count: X\" where X is the number of characters.</li></ul>",
+    "difficulty": "Easy",
+    "boilerplate": "import React, { useState } from 'react';\n\nexport default function CharacterCounter() {\n  return (\n    <div>\n      {/* TODO: Add input and count display */}\n    </div>\n  );\n}",
+    "topics": [
+        "frontend",
+        "react",
+        "forms",
+        "state"
+    ],
+    "domain": "frontend"
+}

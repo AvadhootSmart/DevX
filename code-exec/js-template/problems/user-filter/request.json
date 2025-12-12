@@ -1,0 +1,14 @@
+{
+    "path": "user-filter",
+    "problem_name": "User Filter",
+    "description": "<h2>User Filter</h2><p><strong>Task:</strong> Implement a utility function to filter users based on age.</p><p><strong>Function Signature:</strong> <code>filterUsers(users, minAge)</code></p><p><strong>Requirements:</strong> Return an array of users whose <code>age</code> is strictly greater than <code>minAge</code>.</p><p><strong>Example:</strong></p><pre><code>Input: [{age: 20}, {age: 30}], minAge: 25\nOutput: [{age: 30}]</code></pre>",
+    "difficulty": "Easy",
+    "boilerplate": "/**\n * Filters an array of user objects to return only those older than a specific age.\n * @param {Array} users - Array of user objects { name, age }\n * @param {number} minAge - Minimum age (exclusive)\n * @returns {Array} - Filtered array of user objects\n */\nfunction filterUsers(users, minAge) {\n  // TODO: Return an array containing only users with age > minAge\n}\n\nmodule.exports = filterUsers;",
+    "topics": [
+        "backend",
+        "javascript",
+        "arrays",
+        "filtering"
+    ],
+    "domain": "backend"
+}

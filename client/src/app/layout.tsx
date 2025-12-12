@@ -23,14 +23,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
+    <html lang="en" suppressHydrationWarning>
+      {/* <head>
         <script
           async
           crossOrigin="anonymous"
           src="https://tweakcn.com/live-preview.min.js"
         />
-      </head>
+      </head> */}
       <body className={`${inter.variable} antialiased font-inter`}>
         <ThemeProvider attribute="class">
           <main className="min-h-screen max-w-7xl mx-auto">

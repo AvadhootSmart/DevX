@@ -1,0 +1,14 @@
+{
+    "path": "query-parser",
+    "problem_name": "Query Parser",
+    "description": "<h2>Query Parser</h2><p><strong>Task:</strong> Implement a function to parse URL query strings.</p><p><strong>Requirements:</strong></p><ul><li>Convert a string like <code>?key=value&amp;a=1</code> into an object <code>{key: \"value\", a: \"1\"}</code>.</li><li>Handle URI decoding (e.g <code>%20</code> -> space).</li><li>Do <strong>not</strong> use built-in <code>URLSearchParams</code>.</li></ul>",
+    "difficulty": "Easy",
+    "boilerplate": "/**\n * Parses a query string URL into an object.\n * @param {string} queryString - The query string (e.g., \"?name=John&age=30\")\n * @returns {Object} - Key-value pairs extracted from the query string\n */\nfunction parseQueryString(queryString) {\n  // TODO: Implement the parser\n  // Note: Do not use URLSearchParams or external libraries. Implement the logic manually.\n}\n\nmodule.exports = parseQueryString;",
+    "topics": [
+        "backend",
+        "algorithms",
+        "string-manipulation",
+        "parsing"
+    ],
+    "domain": "backend"
+}

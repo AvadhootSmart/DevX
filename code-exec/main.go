@@ -8,7 +8,7 @@ import (
 	"code-exec/static-data/problems"
 	"time"
 
-	// "os"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -31,9 +31,9 @@ func main() {
 		},
 	}))
 
-	// var CLIENT_URL string = os.Getenv("PROD_URL")
+	var CLIENT_URL string = os.Getenv("PROD_URL")
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3000",
+		AllowOrigins:     CLIENT_URL,
 		AllowMethods:     "GET,POST,PUT,DELETE,HEAD",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,

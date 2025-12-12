@@ -1,0 +1,14 @@
+{
+    "path": "toggle-message",
+    "problem_name": "Toggle Message",
+    "description": "<h2>Toggle Message</h2><p><strong>Task:</strong> Create a React component to toggle a message.</p><p><strong>Requirements:</strong></p><ul><li>Button text: \"Show Message\" (hidden) / \"Hide Message\" (visible).</li><li>Message text: \"Hello World\".</li><li>Initially the message is hidden.</li></ul>",
+    "difficulty": "Easy",
+    "boilerplate": "import React, { useState } from 'react';\n\nexport default function ToggleMessage() {\n  return (\n    <div>\n      {/* TODO: Implement toggle logic */}\n      <button>Show Message</button>\n    </div>\n  );\n}",
+    "topics": [
+        "frontend",
+        "react",
+        "state",
+        "events"
+    ],
+    "domain": "frontend"
+}
