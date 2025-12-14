@@ -15,6 +15,13 @@ export const metadata: Metadata = {
   title: "DevX",
   description:
     "Coding challenge platform to move on from data structures and algorithms and test on actual development problems.",
+  openGraph: {
+    title: "DevX - Coding Challenge Platform",
+    description: "Coding challenge platform to move on from data structures and algorithms and test on actual development problems.",
+    type: "website",
+    siteName: "DevX",
+    url: "https://devx.avadhootsmart.xyz",
+  },
 };
 
 export default function RootLayout({
