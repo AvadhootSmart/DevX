@@ -102,11 +102,6 @@ export default function LandingPage() {
                 Start Solving <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </Link>
-            <Link href={"/about"}>
-              <Button variant="outline" size="lg" className="rounded-full px-8 h-12 cursor-pointer text-base bg-background/50 backdrop-blur-sm hover:bg-background/80">
-                How it works
-              </Button>
-            </Link>
           </motion.div>
         </motion.div>
 
