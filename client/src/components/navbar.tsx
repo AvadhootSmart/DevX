@@ -16,6 +16,7 @@ import { LogOutIcon, Terminal, User } from "lucide-react";
 import { AuthPopup } from "./authPopup";
 import useUser from "../../store/user.store";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -24,9 +25,11 @@ const navigationLinks = [
 ];
 
 export function Navbar() {
-  const { token, setToken } = useUser();
+  const { token, setToken, user } = useUser();
+  const router = useRouter();
 
   const handleLogout = () => {
+    router.push("/");
     setToken(null);
   };
 
@@ -78,7 +81,7 @@ export function Navbar() {
                       <NavigationMenuLink
                         href={link.href}
                         className="py-1.5"
-                      // active={link.active}
+                        // active={link.active}
                       >
                         {link.label}
                       </NavigationMenuLink>
@@ -121,7 +124,7 @@ export function Navbar() {
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2">
-          {!token ? (
+          {!token && !user ? (
             <AuthPopup>
               <Button asChild size="sm" className="text-sm">
                 <a href="#">Get Started</a>

@@ -7,9 +7,17 @@ import { useEffect, useState } from "react";
 import { IProblem } from "../../../types/problem.types";
 import { Badge } from "@/components/ui/badge";
 import { getProblems } from "@/api/problems";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const page = () => {
   const [problems, setProblems] = useState<IProblem[] | null>();
+  const [filter, setFilter] = useState<string>("all");
 
   const fetchProblems = async () => {
     const response = await getProblems();
@@ -20,16 +28,39 @@ const page = () => {
   useEffect(() => {
     fetchProblems();
   }, []);
+
+  const filteredProblems = problems?.filter((problem) => {
+    if (filter === "all") return true;
+    return problem.domain === filter;
+  });
+
   return (
     <div className="sm:px-10 px-2">
-      <h1 className="mt-10 text-3xl font-semibold">All Problems</h1>
-      <h3 className="mt-2 text-md text-zinc-500">
-        Explore problems that test your development skills.{" "}
-      </h3>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div>
+          <h1 className="mt-10 text-3xl font-semibold">All Problems</h1>
+          <h3 className="mt-2 text-md text-zinc-500">
+            Explore problems that test your development skills.{" "}
+          </h3>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by Domain" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="frontend">Frontend</SelectItem>
+              <SelectItem value="backend">Backend</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       <div className="flex flex-col gap-2 my-6">
-        {problems &&
-          problems.map((problem, idx) => (
+        {filteredProblems &&
+          filteredProblems.length > 0 ? (
+          filteredProblems.map((problem, idx) => (
             <Link
               href={`/problem/${problem.path}`}
               key={problem.problem_name}
@@ -58,7 +89,12 @@ const page = () => {
                 </CardContent>
               </Card>
             </Link>
-          ))}
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <p className="text-zinc-500">No problems found for this domain.</p>
+          </div>
+        )}
       </div>
     </div>
   );

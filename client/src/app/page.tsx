@@ -76,7 +76,7 @@ export default function LandingPage() {
 
           <motion.h1
             variants={fadeInUp}
-            className="text-5xl md:text-7xl font-bold tracking-tight mb-8 leading-[1.1] text-foreground"
+            className="text-5xl md:text-7xl font-bold tracking-tighter mb-8 leading-[1.1] text-foreground"
           >
             Full-stack engineering, <br />
             <span className="text-muted-foreground">

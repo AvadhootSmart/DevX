@@ -3,6 +3,7 @@ package handler
 import (
 	"code-exec/models"
 	"encoding/json"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/datatypes"
@@ -55,7 +56,9 @@ func (h *DbHandler) CreateProblem(c *fiber.Ctx) error {
 		Difficulty:  req.Difficulty,
 		Boilerplate: req.Boilerplate,
 		Topics:      datatypes.JSON(topicsJSON),
-		Domain:      models.Domain(req.Domain),
+		// Domain:      models.Domain(req.Domain),
+		Domain: models.Domain(strings.ToLower(req.Domain)),
+
 	}
 
 	if err := h.db.Create(&problem).Error; err != nil {

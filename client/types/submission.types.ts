@@ -9,4 +9,9 @@ export interface ISubmission {
     ProblemID: number;
     Problem: IProblem;
     Code: string;
+    Result: {
+        numTotalTests: number;
+        numPassedTests: number;
+        numFailedTests: number;
+    }
 }

@@ -9,6 +9,7 @@ const inter = Inter({
   variable: "--font-next-inter",
   subsets: ["latin"],
   display: "swap",
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -17,7 +18,8 @@ export const metadata: Metadata = {
     "Coding challenge platform to move on from data structures and algorithms and test on actual development problems.",
   openGraph: {
     title: "DevX - Coding Challenge Platform",
-    description: "Coding challenge platform to move on from data structures and algorithms and test on actual development problems.",
+    description:
+      "Coding challenge platform to move on from data structures and algorithms and test on actual development problems.",
     type: "website",
     siteName: "DevX",
     url: "https://devx.avadhootsmart.xyz",
@@ -38,7 +40,7 @@ export default function RootLayout({
           src="https://tweakcn.com/live-preview.min.js"
         />
       </head> */}
-      <body className={`${inter.variable} antialiased font-inter`}>
+      <body className={`${inter.variable} antialiased font-inter tracking-tight`}>
         <ThemeProvider attribute="class">
           <main className="min-h-screen max-w-7xl mx-auto">
             <Navbar />

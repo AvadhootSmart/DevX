@@ -209,7 +209,7 @@ const Page = () => {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className={cn(
                 "border border-border bg-card rounded-lg p-4",
-                layout === "bento" ? "h-[20vh] overflow-y-scroll" : "h-full",
+                layout === "bento" ? "h-[20vh] overflow-y-scroll" : "h-[80vh] overflow-y-scroll",
               )}
             >
               <ScrollArea>

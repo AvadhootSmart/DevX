@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, XCircle, Code2, Trophy } from "lucide-react";
 import CodeBlock from "@/components/code-block";
-import { Separator } from "@/components/ui/separator";
 
 interface SubmissionResult {
     message?: string;
@@ -65,13 +64,13 @@ export const SubmissionResultDialog: React.FC<SubmissionResultDialogProps> = ({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 mt-4">
+                <div className="space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg">Test Results Summary</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid grid-cols-3 gap-4 mt-4">
+                            <div className="grid grid-cols-3 gap-4">
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <div className="text-3xl font-bold">{numTotalTests}</div>
                                     <div className="text-sm text-muted-foreground mt-1">
@@ -103,23 +102,8 @@ export const SubmissionResultDialog: React.FC<SubmissionResultDialogProps> = ({
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Status Badge */}
-                            <div className="flex justify-center mt-4">
-                                {allTestsPassed ? (
-                                    <Badge className="bg-green-500 hover:bg-green-600 text-white px-4 py-2">
-                                        All Tests Passed ✓
-                                    </Badge>
-                                ) : (
-                                    <Badge variant="destructive" className="px-4 py-2">
-                                        {numFailedTests} Test{numFailedTests !== 1 ? "s" : ""} Failed
-                                    </Badge>
-                                )}
-                            </div>
                         </CardContent>
                     </Card>
-
-                    <Separator />
 
                     {/* Submitted Code */}
                     <Card>

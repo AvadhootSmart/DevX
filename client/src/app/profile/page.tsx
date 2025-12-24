@@ -9,10 +9,17 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { ISubmission } from "../../../types/submission.types";
 import { SubmissionCard } from "@/components/submissionCard";
+import { SubmissionResultDialog } from "@/components/submission-result-dialog";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const page = () => {
   const { user, token, setUser } = useUser();
-  const [submissions, setSubmissions] = useState<any>([]); //TODO: add proper types for submission data
+  const [submissions, setSubmissions] = useState<ISubmission[]>([]);
+  const [selectedSubmission, setSelectedSubmission] = useState<ISubmission | null>(
+    null,
+  );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const fetchUserData = async () => {
     if (!token) {
@@ -37,6 +44,12 @@ const page = () => {
     fetchUserData();
     fetchUsersSubmissions();
   }, [token]);
+
+  const handleCardClick = (submission: ISubmission) => {
+    setSelectedSubmission(submission);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="sm:px-10 px-2">
       <h1 className="mt-10 text-4xl font-semibold">
@@ -50,10 +63,40 @@ const page = () => {
       <h2 className="mt-6 text-2xl font-semibold">Your Submissions</h2>
 
       <div className="px-2 space-y-4 my-8">
-        {submissions.map((submission: ISubmission, idx: number) => (
-          <SubmissionCard key={idx} submission={submission} />
-        ))}
+        {submissions && submissions.length > 0 ? (
+          submissions.map((submission: ISubmission, idx: number) => (
+            <SubmissionCard
+              key={idx}
+              submission={submission}
+              onClick={() => handleCardClick(submission)}
+            />
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 border border-dashed rounded-xl bg-accent/5">
+            <p className="text-zinc-500 mb-4">You haven't submitted any problems yet.</p>
+            <Link href="/problems">
+              <Button variant="outline">Explore Problems</Button>
+            </Link>
+          </div>
+        )}
       </div>
+
+      <SubmissionResultDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        result={
+          selectedSubmission
+            ? {
+              results: {
+                numTotalTests: selectedSubmission.Result.numTotalTests,
+                numPassedTests: selectedSubmission.Result.numPassedTests,
+                numFailedTests: selectedSubmission.Result.numFailedTests,
+              },
+            }
+            : null
+        }
+        submittedCode={selectedSubmission?.Code || ""}
+      />
 
       {/* <div className="space-y-2 my-6">
         {problems &&
