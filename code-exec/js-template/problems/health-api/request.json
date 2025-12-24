@@ -1,0 +1,14 @@
+{
+    "path": "health-api",
+    "problem_name": "Health Check API",
+    "description": "<h2>Health Check API</h2><p>Create a simple health check endpoint for your service.</p><h3>Requirements:</h3><ul><li><strong>GET /health:</strong> Respond with <code>200 OK</code> and a JSON body <code>{ \"status\": \"UP\" }</code>.</li></ul>",
+    "difficulty": "easy",
+    "boilerplate": "const express = require(\"express\");\nconst router = express.Router();\n\n// WRITE YOUR CODE BELOW\n\nmodule.exports = router;",
+    "topics": [
+        "backend",
+        "javascript",
+        "express",
+        "rest-api"
+    ],
+    "domain": "backend"
+}

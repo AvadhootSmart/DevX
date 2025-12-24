@@ -1,0 +1,15 @@
+{
+    "path": "pagination",
+    "problem_name": "Pagination & Filtering",
+    "description": "<h2>Pagination & Filtering</h2><p>Implement an Express route to handle pagination, filtering, and sorting for a product catalog.</p><h3>Requirements:</h3><ul><li><strong>Query Parameters:</strong> <code>page</code>, <code>limit</code>, <code>category</code>, <code>sort</code></li><li><strong>Defaults:</strong> <code>page=1</code>, <code>limit=10</code>, <code>sort=\"id:asc\"</code></li><li><strong>Output:</strong> A JSON response with <code>data</code> (array of items) and <code>metadata</code> (totalItems, totalPages, currentPage, itemsPerPage).</li></ul>",
+    "difficulty": "medium",
+    "boilerplate": "const express = require('express');\nconst router = express.Router();\n\n// Initial data source\nconst initialProducts = [\n  { id: 1, name: \"Laptop Pro\", price: 1200, category: \"Electronics\", inStock: 5 },\n  { id: 2, name: \"E-Reader Basic\", price: 80, category: \"Electronics\", inStock: 12 },\n  { id: 3, name: \"Novel 'The Code'\", price: 15, category: \"Books\", inStock: 30 },\n  { id: 4, name: \"T-Shirt Grey\", price: 25, category: \"Apparel\", inStock: 50 },\n  { id: 5, name: \"Webcam HD\", price: 45, category: \"Electronics\", inStock: 8 },\n  { id: 6, name: \"Coffee Mug\", price: 10, category: \"Home\", inStock: 100 },\n];\n\n/**\n * GET /api/v1/products\n * Query Parameters: page, limit, category, sort\n */\nrouter.get('/api/v1/products', (req, res) => {\n  let products = [...initialProducts];\n\n  // 1. Parse and assign defaults to Query Parameters (page, limit, sort, category)\n  const page = parseInt(req.query.page || 1, 10);\n  const limit = parseInt(req.query.limit || 10, 10);\n  const sortParam = req.query.sort || 'id:asc';\n  const categoryFilter = req.query.category;\n\n  // 2. Filtering\n  // TODO: Implement filtering by 'categoryFilter'\n\n  // 3. Sorting\n  // TODO: Implement sorting logic based on 'sortParam' (e.g., 'price:desc')\n\n  // 4. Pagination\n  // TODO: Implement slicing the array based on 'page' and 'limit'\n\n  // Return res.status(200).json({ data: paginatedData, metadata: { ... } });\n  \n  return res.status(501).send(\"Not Implemented\");\n});\n\nmodule.exports = router;",
+    "topics": [
+        "backend",
+        "javascript",
+        "express",
+        "pagination",
+        "filtering"
+    ],
+    "domain": "backend"
+}

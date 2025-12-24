@@ -1,0 +1,14 @@
+{
+    "path": "hello-counter",
+    "problem_name": "Hello Counter",
+    "description": "<h2>Hello Counter</h2><p>Create a simple button component that tracks the number of clicks.</p><h3>Requirements:</h3><ul><li>Initially, the button should display <strong>\"Hello\"</strong>.</li><li>On the first click, the text should change to <strong>\"1\"</strong>.</li><li>Each subsequent click should increment the number shown on the button.</li></ul>",
+    "difficulty": "easy",
+    "boilerplate": "import React, { useState } from \"react\";\n\nexport default function UserComponent() {\n  // TODO: Implement the counter logic\n  return (\n    <button className=\"bg-zinc-900 text-white px-2 py-2 rounded-md w-20 hover:bg-zinc-700 transition\">\n      Hello\n    </button>\n  );\n}",
+    "topics": [
+        "frontend",
+        "react",
+        "state",
+        "events"
+    ],
+    "domain": "frontend"
+}

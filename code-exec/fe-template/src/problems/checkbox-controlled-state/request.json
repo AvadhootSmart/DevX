@@ -1,0 +1,14 @@
+{
+    "path": "checkbox-controlled-state",
+    "problem_name": "Controlled Checkbox State Bug",
+    "description": "<h2>Controlled Checkbox State Bug</h2><p>A recent refactor has broken the checkbox synchronization. The <code>AgreementCheckbox</code> component visually toggles, but it doesn't stay in sync with the <code>checked</code> prop from its parent.</p><h3>Your Task:</h3><ul><li>Fix the component so that it behaves as a fully controlled component.</li><li>The <code>checked</code> prop should be the single source of truth.</li><li><code>onChange</code> should be called with the correct next value.</li><li>Do not introduce internal state for the checked value.</li></ul>",
+    "difficulty": "easy",
+    "boilerplate": "import React, { useState } from \"react\";\n\nexport default function AgreementCheckbox({ checked, onChange, label }) {\n  const [internal, setInternal] = useState(checked);\n\n  function toggle() {\n    setInternal(!internal);\n    onChange && onChange(internal);\n  }\n\n  return (\n    <label>\n      <input\n        type=\"checkbox\"\n        checked={internal}\n        onChange={toggle}\n        data-testid=\"agreement-checkbox\"\n      />\n      {label}\n    </label>\n  );\n}",
+    "topics": [
+        "frontend",
+        "react",
+        "forms",
+        "state-management"
+    ],
+    "domain": "frontend"
+}

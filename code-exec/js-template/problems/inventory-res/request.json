@@ -1,0 +1,15 @@
+{
+    "path": "inventory-res",
+    "problem_name": "Atomic Inventory Reservation",
+    "description": "<h2>Atomic Inventory Reservation</h2><p>Implement a thread-safe (atomic) inventory reservation system for a single product.</p><h3>Requirements:</h3><ul><li><strong>GET /api/v1/inventory/status:</strong> Return the current remaining stock in the format <code>{ \"remaining\": N }</code>.</li><li><strong>POST /api/v1/inventory/reserve:</strong> Reserve a specific <code>quantity</code> of items.</li><li>If stock is sufficient, decrement the inventory and return <code>200 OK</code>.</li><li>If stock is insufficient, return <code>409 Conflict</code> with <code>{ \"message\": \"Insufficient stock\" }</code>.</li><li><strong>Concurrency:</strong> Multiple simultaneous requests must be handled correctly without over-selling.</li></ul>",
+    "difficulty": "hard",
+    "boilerplate": "const express = require('express');\nconst router = express.Router();\n\nlet currentInventory = 10;\nlet inventoryLock = Promise.resolve();\n\nrouter.post('/testing/reset', (req, res) => {\n    currentInventory = 10;\n    inventoryLock = Promise.resolve();\n    res.status(200).send({ message: \"Inventory reset to 10.\" });\n});\n\n// 1. GET /api/v1/inventory/status\nrouter.get('/api/v1/inventory/status', (req, res) => {\n  // TODO: Return current inventory status\n});\n\n/**\n * 2. POST /api/v1/inventory/reserve\n * Implement atomic reservation logic.\n */\nrouter.post('/api/v1/inventory/reserve', (req, res) => {\n  const { quantity } = req.body;\n  const quantityToReserve = parseInt(quantity, 10);\n  \n  // TODO: Chain logic onto 'inventoryLock' to ensure atomicity\n\n  return res.status(501).send(\"Not Implemented\");\n});\n\nmodule.exports = router;",
+    "topics": [
+        "backend",
+        "javascript",
+        "express",
+        "concurrency",
+        "async-await"
+    ],
+    "domain": "backend"
+}

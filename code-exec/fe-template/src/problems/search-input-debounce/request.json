@@ -1,0 +1,14 @@
+{
+    "path": "search-input-debounce",
+    "problem_name": "Search Input Debounce Regression",
+    "description": "<h2>Search Input Debounce Regression</h2><p>A regression in the search input component is causing requests to fire on every keystroke instead of being debounced.</p><h3>Your Task:</h3><ul><li>Fix the <code>SearchInput</code> component to debounce calls to <code>onSearch</code>.</li><li>The user input should be reflected immediately in the UI (controlled component).</li><li><code>onSearch</code> should only be called after the user stops typing for the specified <code>delay</code> (default 300ms).</li><li>Use React hooks and avoid external libraries.</li></ul>",
+    "difficulty": "medium",
+    "boilerplate": "import React, { useState } from \"react\";\n\nexport default function SearchInput({ onSearch, delay = 300 }) {\n  const [value, setValue] = useState(\"\");\n\n  function handleChange(e) {\n    setValue(e.target.value);\n    onSearch(e.target.value);\n  }\n\n  return (\n    <input\n      data-testid=\"search-input\"\n      value={value}\n      onChange={handleChange}\n      placeholder=\"Search\"\n    />\n  );\n}",
+    "topics": [
+        "frontend",
+        "react",
+        "hooks",
+        "debouncing"
+    ],
+    "domain": "frontend"
+}

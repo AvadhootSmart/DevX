@@ -68,7 +68,9 @@ func ExecCode(code string, problemName string, isFrontendCode bool, c *fiber.Ctx
 		return models.Result{}, errors.New("Failed to write code to sandbox")
 	}
 
-	backendCommand := []string{"bash", "-c", "pnpm install --ignore-scripts --frozen-lockfile && pnpm exec jest --json --outputFile=result.json"}
+	// For backend, run jest on the specific problem directory
+	backendTestPath := fmt.Sprintf("problems/%s", problemName)
+	backendCommand := []string{"bash", "-c", fmt.Sprintf("pnpm install --ignore-scripts --frozen-lockfile && pnpm exec jest %s --json --outputFile=result.json", backendTestPath)}
 
 	// For frontend, run vitest on the specific problem directory
 	frontendTestPath := fmt.Sprintf("src/problems/%s", problemName)

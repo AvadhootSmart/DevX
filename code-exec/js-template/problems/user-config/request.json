@@ -1,0 +1,14 @@
+{
+    "path": "user-config",
+    "problem_name": "User Configuration Store",
+    "description": "<h2>User Configuration Store</h2><p>Develop a simple Express service to store and retrieve user settings.</p><h3>Requirements:</h3><ul><li><strong>POST /config:</strong> Store the configuration for <code>user-123</code>. Respond with <code>201</code> and the configuration object.</li><li><strong>GET /config:</strong> Retrieve the configuration for <code>user-123</code>. Respond with <code>200</code> if found, or <code>404</code> if no configuration has been set.</li></ul>",
+    "difficulty": "easy",
+    "boilerplate": "const express = require('express');\nconst router = express.Router();\n\n// Simulated in-memory storage: Key is userId, Value is the config object\nconst userConfigs = {};\nconst FIXED_USER_ID = 'user-123';\n\n// 1. POST /config\nrouter.post('/config', (req, res) => {\n  // TODO: Store the config object for 'user-123' in userConfigs\n});\n\n// 2. GET /config\nrouter.get('/config', (req, res) => {\n  // TODO: Retrieve the config from userConfigs for 'user-123'\n});\n\nmodule.exports = router;",
+    "topics": [
+        "backend",
+        "javascript",
+        "express",
+        "rest-api"
+    ],
+    "domain": "backend"
+}

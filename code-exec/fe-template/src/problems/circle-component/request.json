@@ -1,0 +1,14 @@
+{
+    "path": "circle-component",
+    "problem_name": "Red Circle Component",
+    "description": "<h2>Red Circle Component</h2><p>Create a React component that renders a red circle.</p><h3>Requirements:</h3><ul><li>The component should have a <code>data-testid=\"circle\"</code> attribute.</li><li>It should be styled as a circle using <code>borderRadius: \"50%\"</code>.</li><li>It should have a <code>width</code> and <code>height</code> of <code>100px</code>.</li><li>The background color should be <code>red</code>.</li></ul>",
+    "difficulty": "easy",
+    "boilerplate": "export default function Circle() {\n  // TODO: Implement a red circle component\n  return (\n    <div data-testid=\"circle\" />\n  );\n}",
+    "topics": [
+        "frontend",
+        "react",
+        "css",
+        "styling"
+    ],
+    "domain": "frontend"
+}
