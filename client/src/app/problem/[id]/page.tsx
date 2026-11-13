@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 //   SelectTrigger,
 //   SelectValue,
 // } from "@/components/ui/select";
-import { VimEditor, VimEditorHandle } from "@/components/vimEditor";
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
@@ -19,7 +18,10 @@ import { IProblem } from "../../../../types/problem.types";
 import { cn } from "@/lib/utils";
 import useUser from "../../../../store/user.store";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AuthPopup } from "@/components/authPopup";
 import {
   ProblemHeader,
   LayoutType,
@@ -27,18 +29,18 @@ import {
 import { PreviewEsbuild } from "@/components/preview-esbuild";
 import { motion, AnimatePresence } from "motion/react";
 import { SubmissionResultDialog } from "@/components/submission-result-dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { getProblemData } from "@/api/problems";
 import { submitCode } from "@/api/submission";
 
 const Page = () => {
   const { id } = useParams();
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   const { token } = useUser();
 
   // const [mode, setMode] = useState<"normal" | "vim">("normal");
   const [problem, setProblem] = useState<IProblem | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
   const [layout, setLayout] = useState<LayoutType>("classic");
@@ -73,14 +75,18 @@ const Page = () => {
   // 🧠 Fetch problem data
   const fetchProblemData = async (problemName: string) => {
     try {
-      const data = await getProblemData(problemName);
-      // console.log(data);
+      // getProblemData toasts and returns undefined on failure
+      const data: IProblem | undefined = await getProblemData(problemName);
+      if (!data) {
+        setLoadFailed(true);
+        return;
+      }
       boilerplateRef.current = data.boilerplate;
-      console.log(data);
       setProblem(data);
       setCode(data.boilerplate);
     } catch (error) {
       console.error("Failed to fetch problem data:", error);
+      setLoadFailed(true);
     }
   };
 
@@ -102,17 +108,15 @@ const Page = () => {
     // Save the submitted code
     setSubmittedCode(submissionCode);
 
-    // Create an AbortController with a 20-second timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
-
     try {
       if (!problem) {
         toast.error("Refresh and try again");
         return;
       }
 
+      // submitCode toasts its own errors and returns undefined on failure
       const data = await submitCode(submissionCode, problem.path, problem.ID);
+      if (!data) return;
 
       // Format the result to match the dialog's expected structure
       const formattedResult = {
@@ -178,59 +182,117 @@ const Page = () => {
 
   const isSplitRightPane = ["focus", "bento"].includes(layout);
 
-  return (
-    <div className="max-w-7xl mx-auto sm:py-4 py-4 px-2">
-      {problem && (
-        <ProblemHeader
-          type={problem.domain}
-          problem={problem}
-          layout={layout}
-          setLayout={setLayout}
-        />
-      )}
+  if (loadFailed) {
+    return (
+      <div className="px-4 sm:px-10">
+        <div className="mt-10 flex flex-col items-center justify-center py-20 text-center border border-dashed rounded-xl">
+          <p className="font-medium">Couldn&apos;t load this problem</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            It may have moved, or the server is unreachable.
+          </p>
+          <Button asChild variant="outline" className="mt-4">
+            <Link href="/problems">Back to problems</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
-      <main
+  if (!problem) {
+    return (
+      <div
+        className="px-2 py-4 sm:h-[calc(100dvh-4rem)] flex flex-col gap-4"
+        aria-busy="true"
+        aria-label="Loading problem"
+      >
+        <div className="rounded-lg border bg-card p-4 space-y-3">
+          <Skeleton className="h-8 w-2/5" />
+          <Skeleton className="h-5 w-1/4" />
+        </div>
+        <div className="grid flex-1 min-h-0 grid-cols-1 sm:grid-cols-2 gap-4">
+          <Skeleton className="h-[70vh] sm:h-full rounded-lg" />
+          <Skeleton className="h-[70vh] sm:h-full rounded-lg" />
+        </div>
+      </div>
+    );
+  }
+
+  const isBento = layout === "bento";
+  const paneHeight = "h-[70vh] sm:h-full";
+
+  const submitButton = (
+    <Button
+      size="sm"
+      onClick={token ? handleSubmit : undefined}
+      disabled={loading}
+    >
+      {loading ? (
+        <>
+          <Loader2 className="animate-spin" aria-hidden="true" />
+          Submitting…
+        </>
+      ) : token ? (
+        <>
+          Submit
+          <Check aria-hidden="true" />
+        </>
+      ) : (
+        "Log in to submit"
+      )}
+    </Button>
+  );
+
+  return (
+    <div className="px-2 py-4 sm:h-[calc(100dvh-4rem)] flex flex-col">
+      <ProblemHeader
+        type={problem.domain}
+        problem={problem}
+        layout={layout}
+        setLayout={setLayout}
+      />
+
+      <div
         className={cn(
-          "gap-4 mt-4 transition-all duration-300 ease-in-out",
-          layout === "bento" ? "flex flex-col" : "grid h-[80vh]",
-          layout !== "bento" &&
-          (showDescription && showRightPane
-            ? "grid-cols-1 sm:grid-cols-2"
-            : "grid-cols-1"),
+          "gap-4 mt-4 sm:flex-1 sm:min-h-0",
+          isBento
+            ? "flex flex-col"
+            : "grid sm:grid-rows-[minmax(0,1fr)]",
+          !isBento &&
+            (showDescription && showRightPane
+              ? "grid-cols-1 sm:grid-cols-2"
+              : "grid-cols-1"),
         )}
       >
         <AnimatePresence mode="popLayout">
           {showDescription && (
-            <motion.div
+            <motion.section
               layoutId="description-section"
+              aria-label="Problem description"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className={cn(
-                "border border-border bg-card rounded-lg p-4",
-                layout === "bento" ? "h-[20vh] overflow-y-scroll" : "h-[80vh] overflow-y-scroll",
+                "border border-border bg-card rounded-lg p-4 sm:p-6 overflow-y-auto",
+                isBento ? "h-[25vh] shrink-0" : paneHeight,
               )}
             >
-              <ScrollArea>
-                <h2 className="text-xl font-semibold">Description</h2>
-                {/* <p>{problem?.description}</p> */}
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: problem?.description || "",
-                  }}
-                  className="prose prose-stone dark:prose-invert max-w-none"
-                />
-              </ScrollArea>
-            </motion.div>
+              <h2 className="text-xl font-semibold">Description</h2>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: problem.description || "",
+                }}
+                className="prose prose-stone dark:prose-invert max-w-prose mt-3 prose-code:before:content-none prose-code:after:content-none prose-code:rounded prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:font-medium prose-pre:bg-muted prose-pre:text-foreground"
+              />
+            </motion.section>
           )}
         </AnimatePresence>
 
         {showRightPane && (
           <div
             className={cn(
-              "grid gap-4 transition-all duration-300 ease-in-out h-[80vh]",
-              layout === "bento" ? "h-[60vh]" : "h-full",
+              "grid gap-4 min-h-0",
+              isBento ? "sm:flex-1" : "sm:h-full",
               isSplitRightPane ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1",
             )}
           >
@@ -244,73 +306,34 @@ const Page = () => {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className={cn(
-                    "border border-border rounded-lg overflow-hidden relative flex flex-col",
-                    layout === "bento" ? "h-[60vh]" : "h-[80vh]",
+                    "border border-border rounded-lg overflow-hidden flex flex-col",
+                    paneHeight,
                   )}
                 >
-                  <div className="absolute bottom-0 right-0 p-4 z-10 flex w-full justify-between pointer-events-none">
-                    <div className="pointer-events-auto"></div>
-                    <div className="flex gap-2 pointer-events-auto">
-                      {/* <Select
-                        value={mode}
-                        onValueChange={(value) => setMode(value as "normal" | "vim")}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select mode" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="vim">Vim</SelectItem>
-                        </SelectContent>
-                      </Select> */}
-
-                      <Button
-                        onClick={handleSubmit}
-                        disabled={loading || !token}
-                        className="cursor-pointer"
-                      >
-                        {!token ? (
-                          "Login to submit"
-                        ) : loading ? (
-                          "Submitting..."
-                        ) : (
-                          <span className="flex items-center">
-                            Submit <Check className="size-4 ml-2" />
-                          </span>
-                        )}
-                      </Button>
-                    </div>
+                  <div className="flex-1 min-h-0">
+                    <Editor
+                      height="100%"
+                      defaultLanguage="javascript"
+                      theme={resolvedTheme === "dark" ? "vs-dark" : "light"}
+                      onMount={handleUserEditorMount}
+                      value={code}
+                      onChange={handleEditorChange}
+                      options={{
+                        minimap: { enabled: false },
+                        scrollBeyondLastLine: false,
+                        quickSuggestions: false,
+                        suggestOnTriggerCharacters: false,
+                        snippetSuggestions: "none",
+                        padding: { top: 12 },
+                      }}
+                    />
                   </div>
-
-                  <div className="relative w-full h-full">
-                    <div
-                      // className={mode === "normal" ? "block h-full" : "hidden"}
-                      className="block h-full"
-                    >
-                      <Editor
-                        height="100%"
-                        defaultLanguage="javascript"
-                        theme={theme === "dark" ? "vs-dark" : "light"}
-                        onMount={handleUserEditorMount}
-                        value={code}
-                        onChange={handleEditorChange}
-                        options={{
-                          minimap: { enabled: false },
-                          scrollBeyondLastLine: false,
-                          quickSuggestions: false,
-                          suggestOnTriggerCharacters: false,
-                          snippetSuggestions: "none",
-                        }}
-                      />
-                    </div>
-
-                    {/* <VimEditor
-                      ref={vimRef}
-                      language="javascript"
-                      theme={theme === "dark" ? "vs-dark" : "light"}
-                      defaultValue="// Write your code here"
-                      editorClassName={cn("rounded-2xl h-[80vh] w-full")}
-                    /> */}
+                  <div className="flex items-center justify-end gap-2 border-t border-border bg-card px-3 py-2">
+                    {token ? (
+                      submitButton
+                    ) : (
+                      <AuthPopup>{submitButton}</AuthPopup>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -331,8 +354,8 @@ const Page = () => {
                     damping: 100,
                   }}
                   className={cn(
-                    "border border-border dark:border-0 rounded-lg overflow-scroll",
-                    layout === "bento" ? "h-[60vh]" : "h-[80vh]",
+                    "border border-border dark:border-0 rounded-lg overflow-hidden",
+                    paneHeight,
                   )}
                 >
                   <PreviewEsbuild code={code} />
@@ -341,7 +364,7 @@ const Page = () => {
             </AnimatePresence>
           </div>
         )}
-      </main>
+      </div>
 
       {/* Submission Result Dialog */}
       <SubmissionResultDialog

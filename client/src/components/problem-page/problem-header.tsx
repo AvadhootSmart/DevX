@@ -19,6 +19,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { motion } from "motion/react";
+import { DifficultyBadge } from "../difficultyBadge";
+import { Difficulty } from "../../../types/problem.types";
+
+const DIFFICULTY_GLOW: Record<Difficulty, string> = {
+  easy: "from-emerald-500/15",
+  medium: "from-amber-500/15",
+  hard: "from-red-500/15",
+};
 
 export type LayoutType =
   | "classic" // Description + Editor
@@ -54,6 +62,8 @@ export const ProblemHeader = ({
           size="icon"
           onClick={() => setLayout(mode)}
           className="h-8 w-8"
+          aria-label={label}
+          aria-pressed={layout === mode}
         >
           {icon}
         </Button>
@@ -70,32 +80,34 @@ export const ProblemHeader = ({
       initial={{ opacity: 0, y: -20, filter: "blur(10px)" }}
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="border relative border-border overflow-hidden bg-card rounded-lg p-4 flex justify-between items-center mb-4">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-semibold">{problem?.problem_name}</h1>
+      className="border relative border-border overflow-hidden bg-card rounded-lg p-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+      <div
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l to-transparent",
+          DIFFICULTY_GLOW[problem.difficulty],
+        )}
+      />
+      <div className="relative min-w-0 space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-balance">
+          {problem.problem_name}
+        </h1>
         <div className="flex flex-wrap gap-1">
-          {problem?.topics.map((topic) => (
+          <DifficultyBadge difficulty={problem.difficulty} />
+          {problem.topics.map((topic) => (
             <Badge key={topic} variant="outline" className="capitalize">
               {topic}
             </Badge>
           ))}
         </div>
       </div>
-      <div
-        className={cn(
-          "h-full w-[20%] right-0 bg-white absolute",
-          problem.difficulty === "easy" &&
-          "bg-gradient-to-l dark:from-green-900 from-green-300 to-transparent",
-          problem.difficulty === "medium" &&
-          "bg-gradient-to-l from-yellow-900 to-transparent",
-          problem.difficulty === "hard" &&
-          "bg-gradient-to-l from-red-900 to-transparent",
-        )}
-      />
-
-      <div className="flex items-center gap-2 z-10 backdrop-blur-lg">
+      <div className="relative flex items-center gap-2">
         <TooltipProvider>
-          <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border">
+          <div
+            role="group"
+            aria-label="Workspace layout"
+            className="flex items-center gap-1 bg-background/60 p-1 rounded-lg border border-border"
+          >
             {renderLayoutButton(
               "classic",
               <PanelLeft className="h-4 w-4" />,

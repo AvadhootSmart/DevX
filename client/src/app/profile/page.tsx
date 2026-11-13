@@ -12,35 +12,53 @@ import { SubmissionCard } from "@/components/submissionCard";
 import { SubmissionResultDialog } from "@/components/submission-result-dialog";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AuthPopup } from "@/components/authPopup";
+
+type SubmissionsState =
+  | { status: "loading" }
+  | { status: "signed-out" }
+  | { status: "error" }
+  | { status: "ready"; submissions: ISubmission[] };
+
+const SKELETON_ROWS = 3;
 
 const page = () => {
   const { user, token, setUser } = useUser();
-  const [submissions, setSubmissions] = useState<ISubmission[]>([]);
+  const [state, setState] = useState<SubmissionsState>({ status: "loading" });
   const [selectedSubmission, setSelectedSubmission] = useState<ISubmission | null>(
     null,
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const fetchUserData = async () => {
-    if (!token) {
-      console.error("No token found");
-      return;
-    }
-    const response = await getUserData();
-    const user = await getUserFromEmail(response);
+    const email = await getUserData();
+    if (!email) return;
+    const profile = await getUserFromEmail(email);
+    if (!profile) return;
 
     setUser({
-      username: user.username,
-      email: user.email,
+      username: profile.username,
+      email: profile.email,
     });
   };
 
   const fetchUsersSubmissions = async () => {
-    const response = await getUserSubmissions();
-    setSubmissions(response);
+    setState({ status: "loading" });
+    // getUserSubmissions returns undefined on failure
+    const response: ISubmission[] | undefined = await getUserSubmissions();
+    setState(
+      response
+        ? { status: "ready", submissions: response }
+        : { status: "error" },
+    );
   };
 
   useEffect(() => {
+    if (!token) {
+      setState({ status: "signed-out" });
+      return;
+    }
     fetchUserData();
     fetchUsersSubmissions();
   }, [token]);
@@ -50,35 +68,82 @@ const page = () => {
     setIsDialogOpen(true);
   };
 
+  if (state.status === "signed-out") {
+    return (
+      <div className="sm:px-10 px-4">
+        <div className="mt-10 flex flex-col items-center justify-center py-20 text-center border border-dashed rounded-xl">
+          <p className="font-medium">Log in to see your submissions</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your solved problems and test results live here.
+          </p>
+          <AuthPopup>
+            <Button className="mt-4">Log in</Button>
+          </AuthPopup>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="sm:px-10 px-2">
-      <h1 className="mt-10 text-4xl font-semibold">
-        Hi, {user ? user.username : "User"}
+    <div className="sm:px-10 px-4 pb-16">
+      <h1 className="mt-10 text-3xl font-semibold">
+        Hi, {user ? user.username : "there"}
       </h1>
-      <h3 className="mt-2 text-md text-zinc-500">
+      <p className="mt-2 text-muted-foreground">
         View all your problem submissions
-      </h3>
+      </p>
 
-      <Separator orientation="horizontal" className="my-6" />
-      <h2 className="mt-6 text-2xl font-semibold">Your Submissions</h2>
+      <Separator orientation="horizontal" className="my-8" />
+      <h2 className="text-xl font-semibold">Your Submissions</h2>
 
-      <div className="px-2 space-y-4 my-8">
-        {submissions && submissions.length > 0 ? (
-          submissions.map((submission: ISubmission, idx: number) => (
-            <SubmissionCard
-              key={idx}
-              submission={submission}
-              onClick={() => handleCardClick(submission)}
-            />
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 border border-dashed rounded-xl bg-accent/5">
-            <p className="text-zinc-500 mb-4">You haven't submitted any problems yet.</p>
-            <Link href="/problems">
-              <Button variant="outline">Explore Problems</Button>
-            </Link>
+      <div className="space-y-2 mt-4">
+        {state.status === "loading" &&
+          Array.from({ length: SKELETON_ROWS }, (_, i) => (
+            <div
+              key={i}
+              className="rounded-xl border bg-card p-4 space-y-3"
+              aria-hidden="true"
+            >
+              <Skeleton className="h-5 w-1/3" />
+              <Skeleton className="h-4 w-1/4" />
+            </div>
+          ))}
+
+        {state.status === "error" && (
+          <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed rounded-xl">
+            <p className="font-medium">Couldn&apos;t load your submissions</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Check your connection and try again.
+            </p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={fetchUsersSubmissions}
+            >
+              Retry
+            </Button>
           </div>
         )}
+
+        {state.status === "ready" &&
+          (state.submissions.length > 0 ? (
+            state.submissions.map((submission) => (
+              <SubmissionCard
+                key={submission.ID}
+                submission={submission}
+                onClick={() => handleCardClick(submission)}
+              />
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed rounded-xl">
+              <p className="text-muted-foreground">
+                You haven&apos;t submitted any problems yet.
+              </p>
+              <Button asChild variant="outline" className="mt-4">
+                <Link href="/problems">Explore Problems</Link>
+              </Button>
+            </div>
+          ))}
       </div>
 
       <SubmissionResultDialog
@@ -87,31 +152,16 @@ const page = () => {
         result={
           selectedSubmission
             ? {
-              results: {
-                numTotalTests: selectedSubmission.Result.numTotalTests,
-                numPassedTests: selectedSubmission.Result.numPassedTests,
-                numFailedTests: selectedSubmission.Result.numFailedTests,
-              },
-            }
+                results: {
+                  numTotalTests: selectedSubmission.Result.numTotalTests,
+                  numPassedTests: selectedSubmission.Result.numPassedTests,
+                  numFailedTests: selectedSubmission.Result.numFailedTests,
+                },
+              }
             : null
         }
         submittedCode={selectedSubmission?.Code || ""}
       />
-
-      {/* <div className="space-y-2 my-6">
-        {problems &&
-          problems.map((problem, idx) => (
-            <Card key={problem.problem_name} className="p-3 rounded-md border-border">
-              <CardContent className="flex justify-between items-center">
-                <Link
-                  className="font-medium text-lg hover:underline"
-                  href={`/problem/${problem.path}`}
-                >{`${idx + 1}.${problem.problem_name}`}</Link>
-                <DifficultyBadge difficulty={problem.difficulty} />
-              </CardContent>
-            </Card>
-          ))}
-      </div> */}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { MoonIcon, SunIcon } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
@@ -9,17 +9,15 @@ import { useTheme } from "next-themes";
 
 export const ThemeToggle = () => {
   const id = useId();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  // resolvedTheme is unknown during SSR; wait for mount to avoid a hydration mismatch
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  const [checked, setChecked] = useState<boolean>(theme === "light");
+  const checked = mounted && resolvedTheme === "light";
 
-  const handleThemeToggle = () => {
-    setChecked(!checked);
-    if (checked) {
-      setTheme("dark");
-    } else {
-      setTheme("light");
-    }
+  const handleThemeToggle = (nextChecked: boolean) => {
+    setTheme(nextChecked ? "light" : "dark");
   };
 
   return (
@@ -39,7 +37,7 @@ export const ThemeToggle = () => {
         </span>
       </div>
       <Label htmlFor={id} className="sr-only">
-        Labeled switch
+        Use light theme
       </Label>
     </div>
   );

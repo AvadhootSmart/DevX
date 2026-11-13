@@ -2,134 +2,127 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { PasswordInput } from "./passwordInput";
 import useUser from "../../store/user.store";
 import { LInput } from "./Input";
 import { loginUser, registerUser } from "@/api/auth";
-import { LogIn } from "lucide-react";
+import { Loader2 } from "lucide-react";
+
+type AuthMode = "Register" | "Login";
 
 export const AuthPopup = ({ children }: { children: React.ReactNode }) => {
-  const { setUser, setToken } = useUser();
+  const { setToken } = useUser();
+
+  const [username, setUsername] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [mode, setMode] = useState<AuthMode>("Login");
+  const [pending, setPending] = useState(false);
 
   const loginTestUser = () => {
     setEmail("test@test.com");
     setPassword("test");
   };
 
-  const [username, setUsername] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [type, setType] = useState<"Register" | "Login">("Login");
-
   const handleRegister = async () => {
+    // registerUser toasts its own success/failure and returns undefined on failure
     const response = await registerUser(email, username, password);
-    setEmail("");
+    if (!response) return;
+    // Registration doesn't issue a token, so hand off to login with the email kept
     setPassword("");
     setUsername("");
-
-    setUser(response.user);
+    setMode("Login");
   };
+
   const handleLogin = async () => {
+    // loginUser toasts its own success/failure and returns undefined on failure
     const response = await loginUser(email, password);
+    if (!response?.token) return;
     setEmail("");
     setPassword("");
-
     setToken(response.token);
   };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setPending(true);
+    try {
+      await (mode === "Register" ? handleRegister() : handleLogin());
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const isRegister = mode === "Register";
+
   return (
-    <>
-      {type === "Register" ? (
-        <Dialog>
-          <DialogTrigger>{children}</DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-semibold font-Montserrat">
-                Create An Account
-              </DialogTitle>
-            </DialogHeader>
-            <LInput
-              placeholder="Enter your email"
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-            />
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle
+            className="text-2xl font-semibold"
+            onDoubleClick={isRegister ? undefined : loginTestUser}
+          >
+            {isRegister ? "Create an account" : "Log in to your account"}
+          </DialogTitle>
+          <DialogDescription>
+            {isRegister
+              ? "Sign up to submit solutions and track your progress."
+              : "Welcome back. Log in to submit solutions."}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <LInput
+            isRequired
+            placeholder="you@example.com"
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type={isRegister ? "email" : "text"}
+            autoComplete="email"
+          />
+          {isRegister && (
             <LInput
               isRequired
-              placeholder="Enter your username"
+              placeholder="Pick a username"
               label="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               type="text"
+              autoComplete="username"
             />
-            <PasswordInput
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <p className="text-sm text-gray-500">
-              Already have an account?{" "}
-              <span className="text-black">
-                <Button
-                  variant={"link"}
-                  className="p-0"
-                  onClick={() => setType("Login")}
-                >
-                  Login
-                </Button>
-              </span>
-            </p>
-            <Button onClick={handleRegister}>Submit</Button>
-          </DialogContent>
-        </Dialog>
-      ) : (
-        <Dialog>
-          <DialogTrigger>{children}</DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle
-                className="text-2xl font-semibold cursor-pointer"
-                onDoubleClick={loginTestUser}
-              >
-                Login to your account
-              </DialogTitle>
-            </DialogHeader>
-            <LInput
-              isRequired
-              placeholder="Enter your email"
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="text"
-            />
-            <PasswordInput
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <p className="text-sm text-gray-500 flex gap-1 items-center">
-              New here??{" "}
-              <span className="text-black">
-                <Button
-                  variant={"link"}
-                  className="p-0"
-                  onClick={() => setType("Register")}
-                >
-                  Create an account
-                </Button>
-              </span>
-            </p>
-            <p className="text-sm text-gray-500">
-              <span className="text-black"></span>
-            </p>
-            <Button onClick={handleLogin}>Submit</Button>
-          </DialogContent>
-        </Dialog>
-      )}
-    </>
+          )}
+          <PasswordInput
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete={isRegister ? "new-password" : "current-password"}
+          />
+          <Button type="submit" className="w-full" disabled={pending}>
+            {pending && <Loader2 className="animate-spin" aria-hidden="true" />}
+            {isRegister ? "Create account" : "Log in"}
+          </Button>
+        </form>
+        <p className="text-sm text-muted-foreground text-center">
+          {isRegister ? "Already have an account?" : "New here?"}{" "}
+          <Button
+            type="button"
+            variant="link"
+            className="h-auto p-0"
+            onClick={() => setMode(isRegister ? "Login" : "Register")}
+          >
+            {isRegister ? "Log in" : "Create an account"}
+          </Button>
+        </p>
+      </DialogContent>
+    </Dialog>
   );
 };

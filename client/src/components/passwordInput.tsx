@@ -2,23 +2,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import React from "react";
-import { InputHTMLAttributes, useState } from "react";
+import { InputHTMLAttributes, useId, useState } from "react";
 
 export const PasswordInput: React.FC<InputHTMLAttributes<HTMLInputElement>> = (
   props,
 ) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const inputId = useId();
 
   const toggleVisibility = () => setIsVisible((prevState) => !prevState);
 
   return (
-    <div className="space-y-2 font-Montserrat">
-      <Label htmlFor="input-23" className="text-lg">
+    <div className="space-y-2">
+      <Label htmlFor={inputId}>
         Password
       </Label>
       <div className="relative">
         <Input
-          id="input-23"
+          id={inputId}
           className="pe-9"
           placeholder="Password"
           type={isVisible ? "text" : "password"}
@@ -30,7 +31,7 @@ export const PasswordInput: React.FC<InputHTMLAttributes<HTMLInputElement>> = (
           onClick={toggleVisibility}
           aria-label={isVisible ? "Hide password" : "Show password"}
           aria-pressed={isVisible}
-          aria-controls="password"
+          aria-controls={inputId}
         >
           {isVisible ? (
             <EyeOff size={16} strokeWidth={2} aria-hidden="true" />

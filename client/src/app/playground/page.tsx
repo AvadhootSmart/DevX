@@ -19,8 +19,7 @@ const Editor = dynamic(() => import("@monaco-editor/react"), {
 type LayoutMode = "split" | "editor" | "preview";
 
 const Page = () => {
-  const { theme } = useTheme();
-  const [mode, setMode] = useState<"normal" | "vim">("normal");
+  const { resolvedTheme } = useTheme();
   const [layout, setLayout] = useState<LayoutMode>("split");
   const [code, setCode] = useState(FETCH_USERS);
 
@@ -41,20 +40,26 @@ const Page = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto sm:py-4 py-4 px-2 h-screen flex flex-col">
-      <header className="border border-border bg-card rounded-lg p-4 flex justify-between items-center mb-4">
+    <div className="py-4 px-2 h-[calc(100dvh-4rem)] flex flex-col">
+      <header className="border border-border bg-card rounded-lg p-4 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold">Frontend Playground</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold">Frontend Playground</h1>
           <p className="text-sm text-muted-foreground">
             Live React preview with Monaco Editor
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border border-border">
+        <div
+          role="group"
+          aria-label="Workspace layout"
+          className="flex w-fit items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border"
+        >
           <Button
             variant={layout === "split" ? "secondary" : "ghost"}
             size="icon"
             onClick={() => setLayout("split")}
             title="Split View"
+            aria-label="Split View"
+            aria-pressed={layout === "split"}
             className="h-8 w-8"
           >
             <Columns className="h-4 w-4" />
@@ -64,6 +69,8 @@ const Page = () => {
             size="icon"
             onClick={() => setLayout("editor")}
             title="Full Editor"
+            aria-label="Full Editor"
+            aria-pressed={layout === "editor"}
             className="h-8 w-8"
           >
             <Code className="h-4 w-4" />
@@ -73,6 +80,8 @@ const Page = () => {
             size="icon"
             onClick={() => setLayout("preview")}
             title="Full Preview"
+            aria-label="Full Preview"
+            aria-pressed={layout === "preview"}
             className="h-8 w-8"
           >
             <Monitor className="h-4 w-4" />
@@ -120,7 +129,7 @@ const Page = () => {
                   <Editor
                     height="100%"
                     defaultLanguage="javascript"
-                    theme={theme === "dark" ? "vs-dark" : "light"}
+                    theme={resolvedTheme === "dark" ? "vs-dark" : "light"}
                     onMount={handleUserEditorMount}
                     value={code}
                     onChange={handleEditorChange}

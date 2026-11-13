@@ -8,8 +8,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, Code2, Trophy } from "lucide-react";
 import CodeBlock from "@/components/code-block";
 
@@ -40,22 +39,22 @@ export const SubmissionResultDialog: React.FC<SubmissionResultDialogProps> = ({
     if (!result) return null;
 
     const { numTotalTests, numPassedTests, numFailedTests } = result.results;
-    const allTestsPassed = numPassedTests === numTotalTests;
+    const allTestsPassed = numTotalTests > 0 && numPassedTests === numTotalTests;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="min-w-4xl max-h-[90vh] overflow-y-scroll overflow-x-hidden">
+            <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-2xl">
                         {allTestsPassed ? (
                             <>
-                                <Trophy className="size-6 text-green-500" />
-                                Submission Successful!
+                                <Trophy className="size-6 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                                All tests passed
                             </>
                         ) : (
                             <>
-                                <Code2 className="size-6 text-blue-500" />
-                                Submission Results
+                                <Code2 className="size-6 text-muted-foreground" aria-hidden="true" />
+                                Submission results
                             </>
                         )}
                     </DialogTitle>
@@ -64,66 +63,59 @@ export const SubmissionResultDialog: React.FC<SubmissionResultDialogProps> = ({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Test Results Summary</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
-                                    <div className="text-3xl font-bold">{numTotalTests}</div>
-                                    <div className="text-sm text-muted-foreground mt-1">
-                                        Total Tests
-                                    </div>
-                                </div>
+                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                    <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
+                        <div className="text-3xl font-bold tabular-nums">{numTotalTests}</div>
+                        <div className="text-sm text-muted-foreground mt-1">Total</div>
+                    </div>
 
-                                <div className="flex flex-col items-center p-4 bg-green-500/10 rounded-lg border border-green-500/20">
-                                    <div className="flex items-center gap-2">
-                                        <CheckCircle2 className="size-5 text-green-500" />
-                                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                                            {numPassedTests}
-                                        </div>
-                                    </div>
-                                    <div className="text-sm text-muted-foreground mt-1">
-                                        Passed
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col items-center p-4 bg-red-500/10 rounded-lg border border-red-500/20">
-                                    <div className="flex items-center gap-2">
-                                        <XCircle className="size-5 text-red-500" />
-                                        <div className="text-3xl font-bold text-red-600 dark:text-red-400">
-                                            {numFailedTests}
-                                        </div>
-                                    </div>
-                                    <div className="text-sm text-muted-foreground mt-1">
-                                        Failed
-                                    </div>
-                                </div>
+                    <div className="flex flex-col items-center p-4 bg-emerald-500/10 rounded-lg">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                            <div className="text-3xl font-bold tabular-nums text-emerald-700 dark:text-emerald-400">
+                                {numPassedTests}
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">Passed</div>
+                    </div>
 
-                    {/* Submitted Code */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <Code2 className="size-5" />
-                                Your Submitted Code
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="rounded-lg overflow-hidden border border-border">
-                                <CodeBlock
-                                    code={submittedCode}
-                                    language={language}
-                                    className="max-h-[400px]"
-                                />
+                    <div
+                        className={cn(
+                            "flex flex-col items-center p-4 rounded-lg",
+                            numFailedTests > 0 ? "bg-red-500/10" : "bg-muted",
+                        )}
+                    >
+                        <div className="flex items-center gap-2">
+                            <XCircle
+                                className={cn(
+                                    "size-5",
+                                    numFailedTests > 0 ? "text-red-600 dark:text-red-400" : "text-muted-foreground",
+                                )}
+                                aria-hidden="true"
+                            />
+                            <div
+                                className={cn(
+                                    "text-3xl font-bold tabular-nums",
+                                    numFailedTests > 0 && "text-red-700 dark:text-red-400",
+                                )}
+                            >
+                                {numFailedTests}
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">Failed</div>
+                    </div>
                 </div>
+
+                <section className="space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">Submitted code</h3>
+                    <div className="rounded-lg overflow-hidden border border-border">
+                        <CodeBlock
+                            code={submittedCode}
+                            language={language}
+                            className="max-h-[400px]"
+                        />
+                    </div>
+                </section>
             </DialogContent>
         </Dialog>
     );

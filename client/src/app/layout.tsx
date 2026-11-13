@@ -42,10 +42,8 @@ export default function RootLayout({
       </head> */}
       <body className={`${inter.variable} antialiased font-inter tracking-tight`}>
         <ThemeProvider attribute="class">
-          <main className="min-h-screen max-w-7xl mx-auto">
-            <Navbar />
-            {children}
-          </main>
+          <Navbar />
+          <main className="max-w-7xl mx-auto">{children}</main>
           <Toaster />
         </ThemeProvider>
       </body>

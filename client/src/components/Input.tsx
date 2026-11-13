@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InputHTMLAttributes } from "react";
+import { InputHTMLAttributes, useId } from "react";
 
 interface LInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -9,21 +9,22 @@ interface LInputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const LInput: React.FC<LInputProps> = ({
   isRequired,
   label,
+  id,
   ...props
 }) => {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
   return (
     <div className="space-y-2">
-      <Label htmlFor="input-02" className="text-lg font-Montserrat">
+      <Label htmlFor={inputId} className="gap-0.5">
         {label}
-        {isRequired && <span className="text-red-400">*</span>}
+        {isRequired && (
+          <span className="text-destructive" aria-hidden="true">
+            *
+          </span>
+        )}
       </Label>
-      <Input
-        id="input-02"
-        type="text"
-        required
-        className="font-Montserrat"
-        {...props}
-      />
+      <Input id={inputId} type="text" required {...props} />
     </div>
   );
 };

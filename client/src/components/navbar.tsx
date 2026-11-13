@@ -16,7 +16,8 @@ import { LogOutIcon, Terminal, User } from "lucide-react";
 import { AuthPopup } from "./authPopup";
 import useUser from "../../store/user.store";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -27,6 +28,8 @@ const navigationLinks = [
 export function Navbar() {
   const { token, setToken, user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
+  const isActive = (href: string) => pathname.startsWith(href);
 
   const handleLogout = () => {
     router.push("/");
@@ -35,7 +38,7 @@ export function Navbar() {
 
   return (
     <header className="border-b border-border px-4 md:px-6">
-      <div className="flex h-16 items-center justify-between gap-4">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4">
         {/* Left side */}
         <div className="flex items-center gap-2">
           {/* Mobile menu trigger */}
@@ -45,6 +48,7 @@ export function Navbar() {
                 className="group size-8 md:hidden"
                 variant="ghost"
                 size="icon"
+                aria-label="Open navigation menu"
               >
                 <svg
                   className="pointer-events-none"
@@ -81,7 +85,7 @@ export function Navbar() {
                       <NavigationMenuLink
                         href={link.href}
                         className="py-1.5"
-                        // active={link.active}
+                        active={isActive(link.href)}
                       >
                         {link.label}
                       </NavigationMenuLink>
@@ -93,24 +97,22 @@ export function Navbar() {
           </Popover>
           {/* Main nav */}
           <div className="flex items-center gap-6">
-            <div className="flex gap-1">
-              <div className="bg-primary text-primary-foreground p-1 rounded-md">
-                <Terminal size={20} />
-              </div>
-              <a
-                href="/"
-                className="text-primary text-lg hover:text-primary/90"
-              >
-                DevX
-              </a>
-            </div>
+            <Link
+              href="/"
+              className="flex items-center gap-2 rounded-md text-lg font-semibold text-primary outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              <span className="bg-primary text-primary-foreground p-1 rounded-md">
+                <Terminal size={18} aria-hidden="true" />
+              </span>
+              DevX
+            </Link>
             {/* Navigation menu */}
             <NavigationMenu className="max-md:hidden">
               <NavigationMenuList className="gap-2">
                 {navigationLinks.map((link, index) => (
                   <NavigationMenuItem key={index}>
                     <NavigationMenuLink
-                      // active={link.active}
+                      active={isActive(link.href)}
                       href={link.href}
                       className="py-1.5 font-medium text-muted-foreground hover:text-primary"
                     >
@@ -126,26 +128,29 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {!token && !user ? (
             <AuthPopup>
-              <Button asChild size="sm" className="text-sm">
-                <a href="#">Get Started</a>
-              </Button>
+              <Button size="sm">Get Started</Button>
             </AuthPopup>
           ) : (
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm" className="text-sm">
-                <Link href={"/profile"} className="flex items-center gap-2">
-                  <User size={20} />
+            <div className="flex gap-1">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className={cn(isActive("/profile") && "bg-accent")}
+              >
+                <Link href="/profile">
+                  <User aria-hidden="true" />
                   Profile
                 </Link>
               </Button>
               <Button
                 variant="ghost"
-                size="sm"
-                className="text-sm"
-                title="Logout"
+                size="icon-sm"
+                title="Log out"
+                aria-label="Log out"
                 onClick={handleLogout}
               >
-                <LogOutIcon />
+                <LogOutIcon aria-hidden="true" />
               </Button>
             </div>
           )}
